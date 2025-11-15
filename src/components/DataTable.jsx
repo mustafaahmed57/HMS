@@ -39,8 +39,17 @@ function DataTable({ columns = [], rows = [], columnLabels = {}, resolveDisplayV
       Dispatched: '#38bdf8',
       Rejected: '#f87171',
       Active: '#16A34Aff',
+      Inactive: '#9ca3af',
       Used:'#2563EBff',
-      Cancelled: '#DC2626ff'
+      Cancelled: '#DC2626ff',
+
+
+      // New statuses
+    Present: '#22c55e',        // Green
+    Absent: '#ef4444',         // Red
+    Leave: '#6366f1',          // Indigo/Purple (calm & neutral)
+    HalfDay: '#fb923c'         // Orange (warning/partial)
+
     };
 
     return (

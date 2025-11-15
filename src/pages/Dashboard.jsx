@@ -5,7 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
-import axios from 'axios';
+// import axios from 'axios';
 
 const salesData = [
   { name: 'Jan', sales: 3000 },
@@ -33,9 +33,9 @@ function Dashboard() {
     const fetchData = async () => {
      try {
   const [productsRes, poRes, soRes, moRes] = await Promise.all([
-    axios.get('http://localhost:5186/api/products'),
-    axios.get('http://localhost:5186/api/purchaseorder'),
-    axios.get('http://localhost:5186/api/salesorder'),
+    // axios.get('http://localhost:5186/api/products'),
+    // axios.get('http://localhost:5186/api/purchaseorder'),
+    // axios.get('http://localhost:5186/api/salesorder'),
     // axios.get('http://localhost:5186/api/manufacturingorder')
   ]);
 
@@ -63,11 +63,11 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h2>Welcome to Carteza ERP</h2>
+      <h2>Welcome to StayElite HMS</h2>
 
       <div className="card-grid">
         <div className="dashboard-card">
-          <h3>🛒 Purchase Orders</h3>
+          <h3>🛒 Rooms Orders</h3>
           <p>{summary.totalPOs}</p>
         </div>
         <div className="dashboard-card">
@@ -75,11 +75,11 @@ function Dashboard() {
           <p>{summary.salesOrders}</p>
         </div>
         <div className="dashboard-card">
-          <h3>📦 Inventory Items</h3>
+          <h3>📦 Booking </h3>
           <p>{summary.inventoryCount}</p>
         </div>
        <div className="dashboard-card">
-  <h3>🏭 Manufacturing</h3>
+  <h3>🏭 Reservations</h3>
   <p>{summary.manufacturingOrders} Active Orders</p>
 </div>
       </div>
@@ -122,7 +122,7 @@ function Dashboard() {
         </div>
 
         <div className="chart-box">
-          <h4>Manufacturing Output</h4>
+          <h4>Customers Output</h4>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={[
               { month: 'Jan', units: 100 },

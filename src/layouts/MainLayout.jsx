@@ -16,11 +16,10 @@ function MainLayout({ userRole }) {
           <Outlet key={location.pathname} />
         </div>
         <footer className="footer">
-          developed by mustafa minhas dev
+          copyright ownership with the year © 2025 StayElite HMS
         </footer>
       </div>
     </div>
-  );
-}
+  );}
 
 export default MainLayout;

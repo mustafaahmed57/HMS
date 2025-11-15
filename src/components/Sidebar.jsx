@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  FaChevronDown, FaChevronUp, FaShoppingCart, FaCashRegister,
+  FaChevronDown, FaChevronUp, FaShoppingCart, FaCashRegister,FaUserTie,
   FaWarehouse, FaIndustry, FaUsers, FaHome, FaSignOutAlt,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -9,7 +9,7 @@ import LogoutModal from '../components/LogoutModal'; // ✅ create this file bel
 
 // ✅ Role-wise allowed modules
 const roleAccess = {
-  Admin: ['Dashboard', 'Purchase', 'Sales', 'Inventory', 'Manufacturing', 'Users', 'Vendor'],
+  Admin: ['Dashboard', 'Purchase', 'Sales', 'Inventory', 'Manufacturing', 'Users', 'Vendor','HR'],
   Procurement: ['Purchase', 'Vendor'],
   Sales: ['Sales'],
   Inventory: ['Inventory'],
@@ -22,38 +22,52 @@ const sidebarModules = [
     icon: <FaHome />,
     children: [{ name: 'Dashboard', path: '/dashboard' }],
   },
+  // {
+  //   name: 'Purchase',
+  //   icon: <FaShoppingCart />,
+  //   children: [
+  //     { name: 'Supplier Management', path: '/suppliers', tag: 'Master Data' },
+  //     { name: 'Purchase Request', path: '/purchase-request' },
+  //     { name: 'Purchase Order', path: '/purchase-order' },
+  //     { name: 'Goods Receipt', path: '/goods-receipt' },
+  //     { name: 'Supplier Invoice', path: '/supplier-invoice' },
+  //   ],
+  // },
+  /* ✅ HR MODULE (new) */
   {
-    name: 'Purchase',
-    icon: <FaShoppingCart />,
+    name: 'HR',
+    icon: <FaUserTie />,
     children: [
-      { name: 'Supplier Management', path: '/suppliers', tag: 'Master Data' },
-      { name: 'Purchase Request', path: '/purchase-request' },
-      { name: 'Purchase Order', path: '/purchase-order' },
-      { name: 'Goods Receipt', path: '/goods-receipt' },
-      { name: 'Supplier Invoice', path: '/supplier-invoice' },
+      { name: 'Employee', path: '/employees' },
+      { name: 'Attendance', path: '/attendance' },
+      { name: 'Task', path: '/tasks' },
+      { name: 'Payroll', path: '/payroll' },
+      { name: 'Summary', path: '/hr-summary' },
+
+
     ],
   },
-  {
-    name: 'Sales',
-    icon: <FaCashRegister />,
-    children: [
-      { name: 'Customers Management', path: '/customers' }, // ✅ NEW LINE
-      { name: 'Sales Inquiry', path: '/sales-inquiry' },
-      { name: 'Sales Order', path: '/sales-order' },
-      { name: 'Delivery Note', path: '/delivery-note' },
-      { name: 'Invoice', path: '/customer-invoice' },
-    ],
-  },
-  {
-    name: 'Inventory',
-    icon: <FaWarehouse />,
-    children: [
-      { name: 'Product Management', path: '/product-management' },
-      { name: 'Stock In', path: '/stock-in' },
-      { name: 'Stock Out', path: '/stock-out' },
-      { name: 'Inventory Report', path: '/inventory-report' },
-    ],
-  },
+  // {
+  //   name: 'Sales',
+  //   icon: <FaCashRegister />,
+  //   children: [
+  //     { name: 'Customers Management', path: '/customers' }, // ✅ NEW LINE
+  //     { name: 'Sales Inquiry', path: '/sales-inquiry' },
+  //     { name: 'Sales Order', path: '/sales-order' },
+  //     { name: 'Delivery Note', path: '/delivery-note' },
+  //     { name: 'Invoice', path: '/customer-invoice' },
+  //   ],
+  // },
+  // {
+  //   name: 'Inventory',
+  //   icon: <FaWarehouse />,
+  //   children: [
+  //     { name: 'Product Management', path: '/product-management' },
+  //     { name: 'Stock In', path: '/stock-in' },
+  //     { name: 'Stock Out', path: '/stock-out' },
+  //     { name: 'Inventory Report', path: '/inventory-report' },
+  //   ],
+  // },
 //   {
 //   name: 'Vendor',
 //   icon: <FaUsers />, // or FaTruck or FaAddressBook if you want a different icon
@@ -62,18 +76,18 @@ const sidebarModules = [
 //   ],
 // },
 
-  {
-    name: 'Manufacturing',
-    icon: <FaIndustry />,
-    children: [
-      { name: 'Bom', path: '/bom' },
-      { name: 'Production Plan', path: '/production-plan' },
-      { name: 'Production Order', path: '/production-order' }, 
-      { name: 'Production Completion', path: '/production-completion' }
-      // { name: 'Manufacturing Order', path: '/manufacturing-Order' },
+  // {
+  //   name: 'Manufacturing',
+  //   icon: <FaIndustry />,
+  //   children: [
+  //     { name: 'Bom', path: '/bom' },
+  //     { name: 'Production Plan', path: '/production-plan' },
+  //     { name: 'Production Order', path: '/production-order' }, 
+  //     { name: 'Production Completion', path: '/production-completion' }
+  //     // { name: 'Manufacturing Order', path: '/manufacturing-Order' },
       
-    ],
-  },
+  //   ],
+  // },
   {
     name: 'Users',
     icon: <FaUsers />,
@@ -102,7 +116,7 @@ function Sidebar({ userRole }) {
 
   return (
     <div className="sidebar">
-      <h2 className="logo">Carteza ERP</h2>
+      <h2 className="logo">Stay Elite HMS</h2>
 
       <div className="modules">
         {allowedModules.map((module) => (

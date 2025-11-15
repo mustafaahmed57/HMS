@@ -64,7 +64,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
     <div className="wrapper">
       <div className="container">
         <div className="form-box">
-          <h2>Login to Carteza</h2>
+          <h2>Login to HMS</h2>
           <form onSubmit={handleSubmit}>
             <input
               type="email"

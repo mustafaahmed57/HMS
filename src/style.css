@@ -82,6 +82,7 @@ body {
 .main-layout {
   display: flex;
   height: 100vh;
+  /* align-items: stretch;  */
 }
 
 /* Sidebar styles */
@@ -95,6 +96,9 @@ body {
   justify-content: space-between;
   padding: 20px;
   box-sizing: border-box;
+
+  /* 🔥 ye 2 lines ADD karo */
+  flex-shrink: 0;   
 }
 
 .logo {
@@ -252,10 +256,10 @@ body {
   padding: 30px;
   overflow-y: auto;
 }
-
+/* 
 .dashboard {
   padding: 30px;
-}
+} */
 
 .dashboard h2 {
   margin-bottom: 30px;
@@ -894,4 +898,31 @@ for invoicing modal */
 .table-wrapper td {
   padding: 8px;
   border: 1px solid #ddd;
+}
+
+
+/* Payroll summary page layout ko normal rakho */
+.payroll-summary-page {
+  padding: 1rem;
+  /* optional: ensure it doesn't stretch layout */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Yeh important part hai — horizontal scroll */
+.payroll-summary-table {
+  margin-top: 1rem;
+  width: 100%;
+  overflow-x: auto;        /* 🔥 table scroll karegi, layout nahi tootega */
+}
+
+/* Table ko thoda min-width do taake columns squeeze na hon */
+.payroll-summary-table table {
+  min-width: 1000px;       /* zaroorat ho to 1100 / 1200 bhi rakh sakte ho */
+}
+
+/* Optional: thoda header font chhota kar do */
+.payroll-summary-table th {
+  white-space: nowrap;
+  font-size: 0.85rem;
 }

@@ -18,7 +18,7 @@ function Signup() {
     display: 'inline-block',
     // marginTop: '10px',
     padding: '10px 28px',
-    backgroundColor: '#2C74B3', // Button color
+    backgroundColor: '#080808', // Button color
     color: '#ffffff',
     borderRadius: '25px',
     fontWeight: '600',
@@ -31,7 +31,7 @@ function Signup() {
     e.target.style.backgroundColor = '#0f2e44'; // Your ERP theme color
   }}
   onMouseOut={(e) => {
-    e.target.style.backgroundColor = '#2C74B3';
+    e.target.style.backgroundColor = '#080808';
   }}
 >
   Back to Login

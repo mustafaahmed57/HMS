@@ -13,23 +13,6 @@ function Users() {
   const fields = [
     { name: 'fullName', label: 'Full Name', type: 'text', disabled: isEditing },
     { name: 'email', label: 'Email', type: 'email' },
-    // { name: 'password', label: 'Password', type: 'password' },
-//     {
-//   name: 'password',
-//   label: 'Password',
-//   type: showPassword ? 'text' : 'password',
-// }
-// ,
-//     {
-//   name: 'password',
-//   label: 'Password',
-//   type: showPassword ? 'text' : 'password',
-//   suffix: (
-//     <span onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
-//       {showPassword ? '🙈' : '👁️'}
-//     </span>
-//   )
-// },
  {
     name: 'password',
     type: showPassword ? 'text' : 'password',

@@ -4,30 +4,14 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import MainLayout from './layouts/MainLayout';
-import PurchaseRequest from './pages/PurchaseRequest';
-import PurchaseOrder from './pages/PurchaseOrder';
-import GoodsReceipt from './pages/GoodsReceipt';
-import SupplierInvoice from './pages/SupplierInvoice';
-import Users from './pages/Users';
-import SalesInquiry from './pages/SalesInquiry';
-import SalesOrder from './pages/SalesOrder';
-import DeliveryNote from './pages/DeliveryNote';
-import NotFound from './pages/NotFound';
+import NotFound from './pages/NotFound';  
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ProductManagement from './pages/ProductManagement';
-import StockIn from './pages/StockIn';
-import StockOut from './pages/StockOut';
-import InventoryReport from './pages/InventoryReport';
-import WelcomePage from './pages/WelcomePage';
-import Suppliers from './pages/Suppliers';
-import Customer from './pages/Customer'; // ✅ adjust path if needed
-import CustomerInvoice from './pages/CustomerInvoice';
-import BOM from './pages/Bom';
-import ProductionPlan from './pages/ProductionPlan';
-import ProductionOrder from './pages/ProductionOrder';
-import ProductionCompletion from './pages/ProductionCompletion';
-
+import TaskManagement from './pages/Task';
+import EmployeeMaster from './pages/EmployeeMaster.jsx';
+import AttendanceManagement from './pages/Attendance';
+import PayrollProcessing from './pages/Payroll';
+import PayrollSummary from './pages/PayrollSummary.jsx';
 
 
 
@@ -51,26 +35,12 @@ function App() {
           {isLoggedIn ? (
             <Route path="/" element={<MainLayout userRole={userRole} />}>
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="purchase-request" element={<PurchaseRequest />} />
-              <Route path="purchase-order" element={<PurchaseOrder />} />
-              <Route path="goods-receipt" element={<GoodsReceipt />} />
-              <Route path="supplier-invoice" element={<SupplierInvoice />} />
-              <Route path="users" element={<Users />} />
-              <Route path="/customers" element={<Customer />} /> 
-              <Route path="sales-inquiry" element={<SalesInquiry />} />
-              <Route path="sales-order" element={<SalesOrder />} />
-              <Route path="delivery-note" element={<DeliveryNote />} />
-              <Route path="product-management" element={<ProductManagement />} />
-              <Route path="stock-in" element={<StockIn />} />
-              <Route path="stock-out" element={<StockOut />} />
-              <Route path="inventory-report" element={<InventoryReport />} />
-              <Route path="/welcome" element={<WelcomePage />} />
-              <Route path="suppliers" element={<Suppliers />} />
-              <Route path="/customer-invoice" element={<CustomerInvoice />} />
-              <Route path="/bom" element={<BOM />} />
-              <Route path="/production-plan" element={<ProductionPlan />} />
-              <Route path="/production-order" element={<ProductionOrder />} />
-              <Route path="/production-completion" element={<ProductionCompletion />} />
+              <Route path="/employees" element={<EmployeeMaster />} />
+              <Route path="/attendance" element={<AttendanceManagement />} />
+              <Route path="/payroll" element={<PayrollProcessing />} />
+              <Route path="/tasks" element={<TaskManagement />} />
+              <Route path="/hr-summary" element={<PayrollSummary />} />
+
             </Route>
           ) : (
             // ✅ Redirect if not logged in
