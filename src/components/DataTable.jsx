@@ -48,7 +48,12 @@ function DataTable({ columns = [], rows = [], columnLabels = {}, resolveDisplayV
     Present: '#22c55e',        // Green
     Absent: '#ef4444',         // Red
     Leave: '#6366f1',          // Indigo/Purple (calm & neutral)
-    HalfDay: '#fb923c'         // Orange (warning/partial)
+    HalfDay: '#fb923c',         // Orange (warning/partial)
+       // 🔥 Hiring Statuses (New addition)
+    New: '#0ea5e9',          // Sky Blue → fresh application
+    Shortlisted: '#10b981',  // Emerald → shortlisted candidates
+    Interviewed: '#a855f7',  // Purple → interview completed
+    Selected: '#22c55e',     // Green → final selection
 
     };
 

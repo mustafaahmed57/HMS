@@ -32,7 +32,7 @@ function Users() {
       name: 'role',
       label: 'Role',
       type: 'select',
-      options: ['Admin', 'Procurement', 'Sales', 'Inventory', 'Manufacturing'],
+      options: ['Admin'],
     },
   ];
 

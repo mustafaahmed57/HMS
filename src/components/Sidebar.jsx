@@ -38,13 +38,12 @@ const sidebarModules = [
     name: 'HR',
     icon: <FaUserTie />,
     children: [
+      { name: 'Hiring', path: '/hiring' },
       { name: 'Employee', path: '/employees' },
       { name: 'Attendance', path: '/attendance' },
       { name: 'Task', path: '/tasks' },
       { name: 'Payroll', path: '/payroll' },
       { name: 'Summary', path: '/hr-summary' },
-
-
     ],
   },
   // {

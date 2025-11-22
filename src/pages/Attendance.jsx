@@ -5,10 +5,11 @@ import { toast } from 'react-toastify';
 import { useLimitedDateRange } from "../components/useLimitedDateRange";
 
 function AttendanceManagement() {
-   const { minDateStr, maxDateStr } = useLimitedDateRange({
+  const { minDateStr, maxDateStr } = useLimitedDateRange({
     allowPastDays: 1,     // jitnay din back-date allow
     allowFutureDays: 0,   // future bilkul nahin
   });
+
   const [rows, setRows] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [initialValues, setInitialValues] = useState({});
@@ -50,8 +51,8 @@ function AttendanceManagement() {
       name: 'attendanceDate',
       label: 'Date',
       type: 'date',
-      min: minDateStr,   // 🔥 hook se aa raha
-    max: maxDateStr,   // 🔥
+      min: minDateStr,
+      max: maxDateStr,
     },
     {
       name: 'checkIn',
@@ -72,22 +73,53 @@ function AttendanceManagement() {
     }
   ];
 
-  // DeliveryNote-style signature
+  // Field change handler with status-based time logic
   const handleFieldChange = (fieldName, value, setFormValues) => {
+    // Date clear ho to today daal do
     if (fieldName === 'attendanceDate' && !value) {
-      // default to today if cleared
       const today = new Date().toISOString().split('T')[0];
       setFormValues(prev => ({ ...prev, attendanceDate: today }));
       return;
     }
+
+    // Status change pe 00:00 logic
+    if (fieldName === 'status') {
+      setFormValues(prev => {
+        const next = { ...prev, status: value };
+
+        // Absent / Leave → times force 00:00 (user ko bhi dikhe)
+        if (value === 'Absent' || value === 'Leave') {
+          next.checkIn = '00:00';
+          next.checkOut = '00:00';
+        } else {
+          // Agar pehle Absent/Leave tha aur ab Present/Half Day ho gaya
+          // to user ko fresh time daalne ka mauqa do
+          if (prev.status === 'Absent' || prev.status === 'Leave') {
+            next.checkIn = '';
+            next.checkOut = '';
+          }
+        }
+
+        return next;
+      });
+      return;
+    }
+
     setFormValues(prev => ({ ...prev, [fieldName]: value }));
   };
 
   const validate = (d) => {
     if (!d.employeeID) return 'Employee is required.';
-    if (d.status && !['Present','Absent','Leave','Half Day'].includes(d.status)) return 'Invalid status.';
-    // time sanity
-    if (d.checkIn && d.checkOut && d.checkOut <= d.checkIn) return 'Check-Out must be later than Check-In.';
+    if (d.status && !['Present','Absent','Leave','Half Day'].includes(d.status))
+      return 'Invalid status.';
+
+    // ⛔ Sirf Present / Half Day ke liye time check
+    if (d.status === 'Present' || d.status === 'Half Day') {
+      if (d.checkIn && d.checkOut && d.checkOut <= d.checkIn) {
+        return 'Check-Out must be later than Check-In.';
+      }
+    }
+
     return null;
   };
 
@@ -99,66 +131,69 @@ function AttendanceManagement() {
       payload.attendanceDate = new Date().toISOString().split('T')[0];
     }
 
-    // Convert time string "HH:MM" to SQL TIME via backend binder (string is fine)
-    // Keep as "HH:MM"—ASP.NET Core can bind to TimeSpan automatically if "HH:MM"
-    if (!payload.checkIn) delete payload.checkIn;
-    if (!payload.checkOut) delete payload.checkOut;
+    // ⛔ Absent / Leave → backend ko always "00:00" bhejo
+    if (payload.status === 'Absent' || payload.status === 'Leave') {
+      payload.checkIn = '00:00';
+      payload.checkOut = '00:00';
+    } else {
+      // Present / Half Day → agar empty ho to hata do
+      if (!payload.checkIn) delete payload.checkIn;
+      if (!payload.checkOut) delete payload.checkOut;
+    }
 
     return payload;
   };
 
- const handleSubmit = async (data) => {
-  const payload = toPayload(data);
-  const err = validate(payload);
-  if (err) { toast.error(err); return; }
-
-  try {
-    let res;
-    if (isEditing) {
-      payload.attendanceID = initialValues.attendanceID;
-      res = await fetch(`http://localhost:5186/api/attendance/${initialValues.attendanceID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw res;
-      toast.info('Attendance updated ✅');
-    } else {
-      res = await fetch('http://localhost:5186/api/attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw res;
-      toast.success('Attendance added ✅');
-    }
-
-    setInitialValues({});
-    setEditId(null);
-    fetchAttendance();
-  } catch (e) {
-    let message = 'Error saving attendance ❌';
+  const handleSubmit = async (data) => {
+    const payload = toPayload(data);
+    const err = validate(payload);
+    if (err) { toast.error(err); return; }
 
     try {
-      if (e.json) {
-        const data = await e.json();
-        message = data?.message || data?.errors?.[0] || message;
+      let res;
+      if (isEditing) {
+        payload.attendanceID = initialValues.attendanceID;
+        res = await fetch(`http://localhost:5186/api/attendance/${initialValues.attendanceID}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw res;
+        toast.info('Attendance updated ✅');
+      } else {
+        res = await fetch('http://localhost:5186/api/attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw res;
+        toast.success('Attendance added ✅');
       }
-    } catch {
-      // ignore
+
+      setInitialValues({});
+      setEditId(null);
+      fetchAttendance();
+    } catch (e) {
+      let message = 'Error saving attendance ❌';
+
+      try {
+        if (e.json) {
+          const data = await e.json();
+          message = data?.message || data?.errors?.[0] || message;
+        }
+      } catch {
+        // ignore
+      }
+
+      toast.error(message);
     }
-
-    toast.error(message);
-  }
-};
-
+  };
 
   const handleEdit = (index) => {
     const r = rows[index];
     // Convert CheckIn/Out from "hh:mm:ss" (server) to "HH:MM" for input
     const toHM = (t) => {
       if (!t) return '';
-      // t could be "hh:mm:ss" or "hh:mm:ss.fffffff"
       const parts = t.split(':');
       return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}`;
     };
@@ -193,7 +228,6 @@ function AttendanceManagement() {
 
   const columns = [
     'attendanceID',
-    // 'employeeID',
     'employeeCode',
     'employeeName',
     'attendanceDate',
@@ -213,7 +247,11 @@ function AttendanceManagement() {
   const rowsForTable = rows.map((r, idx) => ({
     ...r,
     attendanceDate: r.attendanceDate
-      ? new Date(r.attendanceDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      ? new Date(r.attendanceDate).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        })
       : 'N/A',
     checkIn: niceTime(r.checkIn),
     checkOut: niceTime(r.checkOut),

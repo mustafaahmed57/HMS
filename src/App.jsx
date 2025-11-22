@@ -12,6 +12,8 @@ import EmployeeMaster from './pages/EmployeeMaster.jsx';
 import AttendanceManagement from './pages/Attendance';
 import PayrollProcessing from './pages/Payroll';
 import PayrollSummary from './pages/PayrollSummary.jsx';
+import HiringManagement from './pages/HiringManagement.jsx';
+import Users from './pages/Users.jsx';
 
 
 
@@ -40,6 +42,8 @@ function App() {
               <Route path="/payroll" element={<PayrollProcessing />} />
               <Route path="/tasks" element={<TaskManagement />} />
               <Route path="/hr-summary" element={<PayrollSummary />} />
+              <Route path="/hiring" element={<HiringManagement />} />
+              <Route path="/users" element={<Users />} />
 
             </Route>
           ) : (
