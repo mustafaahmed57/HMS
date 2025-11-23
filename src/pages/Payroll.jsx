@@ -95,75 +95,95 @@ function PayrollProcessing() {
       required: true
     },
     { name: 'basicSalary', label: 'Basic Salary', type: 'number', disabled: true },
-    { name: 'deductions', label: 'Deductions', type: 'number' },
+    { name: 'deductions', label: 'Deductions', type: 'text' },
     { name: 'netSalary', label: 'Net Salary', type: 'number', disabled: true },
     { name: 'paymentDate', label: 'Payment Date', type: 'date', disabled: true }
   ];
+  
+ const handleFieldChange = async (field, value, setFormValues) => {
+  if (field === 'employeeID') {
+    try {
+      const res = await fetch(`http://localhost:5186/api/Employees/${value}`);
+      if (!res.ok) throw new Error();
+      const emp = await res.json();
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth() + 1;
 
-  const handleFieldChange = async (field, value, setFormValues) => {
-    if (field === 'employeeID') {
-      try {
-        const res = await fetch(`http://localhost:5186/api/Employees/${value}`);
-        if (!res.ok) throw new Error();
-        const emp = await res.json();
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth() + 1;
-
-        setFormValues(prev => {
-          const ded = prev?.deductions ? Number(prev.deductions) : 0;
-          const basic = Number(emp.basicSalary || 0);
-          return {
-            ...prev,
-            employeeID: value,
-            basicSalary: basic,
-            deductions: ded,
-            netSalary: basic - ded,
-            paymentDate: today.toISOString().split('T')[0],
-            periodYear: prev.periodYear || year,
-            periodMonth: prev.periodMonth || month
-          };
-        });
-      } catch {
-        toast.error('Failed to fetch salary ❌');
-      }
-      return;
-    }
-
-    if (field === 'deductions') {
       setFormValues(prev => {
-        const basic = Number(prev?.basicSalary || 0);
-        const ded = Number(value || 0);
-        return { ...prev, deductions: ded, netSalary: basic - ded };
-      });
-      return;
-    }
+        const rawDed = prev?.deductions ?? '';                // string hi rehne do
+        const dedNum =
+          rawDed === '' || rawDed == null ? 0 : Number(rawDed);
+        const basic = Number(emp.basicSalary || 0);
 
-    setFormValues(prev => ({ ...prev, [field]: value }));
-  };
+        return {
+          ...prev,
+          employeeID: value,
+          basicSalary: basic,
+          deductions: rawDed,                                 // 👈 string
+          netSalary: basic - (Number.isNaN(dedNum) ? 0 : dedNum),
+          paymentDate: today.toISOString().split('T')[0],
+          periodYear: prev.periodYear || year,
+          periodMonth: prev.periodMonth || month
+        };
+      });
+    } catch {
+      toast.error('Failed to fetch salary ❌');
+    }
+    return;
+  }
+
+  if (field === 'deductions') {
+    setFormValues(prev => {
+      const basic = Number(prev?.basicSalary || 0);
+      const raw = value;                                     // 👈 directly string
+      const dedNum = raw === '' || raw == null ? 0 : Number(raw);
+
+      return {
+        ...prev,
+        deductions: raw,                                     // 👈 string store
+        netSalary: basic - (Number.isNaN(dedNum) ? 0 : dedNum)
+      };
+    });
+    return;
+  }
+
+  setFormValues(prev => ({ ...prev, [field]: value }));
+};
+
 
   const toPayload = (d) => {
-    const payload = { ...d };
+  const payload = { ...d };
 
-    payload.periodYear = Number(payload.periodYear);
-    payload.periodMonth = Number(payload.periodMonth);
+  payload.periodYear = Number(payload.periodYear);
+  payload.periodMonth = Number(payload.periodMonth);
 
-    if (!payload.deductions) payload.deductions = 0;
+  const raw = payload.deductions;
+  const ded = raw === '' || raw == null ? 0 : Number(raw);
+  payload.deductions = Number.isNaN(ded) ? 0 : ded;  // 0 allowed, default bhi 0
 
-    delete payload.netSalary;
-    delete payload.basicSalary;
-    delete payload.paymentDate;
+  delete payload.netSalary;
+  delete payload.basicSalary;
+  delete payload.paymentDate;
 
-    return payload;
-  };
+  return payload;
+};
 
-  const validate = (d) => {
-    if (!d.employeeID) return 'Employee is required.';
-    if (!d.periodYear) return 'Year is required.';
-    if (!d.periodMonth) return 'Month is required.';
-    if (Number(d.deductions) < 0) return 'Deductions cannot be negative.';
-    return null;
-  };
+
+ const validate = (d) => {
+  if (!d.employeeID) return 'Employee is required.';
+  if (!d.periodYear) return 'Year is required.';
+  if (!d.periodMonth) return 'Month is required.';
+
+  const raw = d.deductions;
+  const ded = raw === '' || raw == null ? 0 : Number(raw);
+
+  if (Number.isNaN(ded)) return 'Deductions must be a number.';
+  if (ded < 0) return 'Deductions cannot be negative.'; // 0 ✔ allowed
+
+  return null;
+};
+
 
   const handleSubmit = async (data) => {
     const err = validate(data);
