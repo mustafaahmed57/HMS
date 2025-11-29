@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FaChevronDown, FaChevronUp, FaShoppingCart, FaCashRegister,FaUserTie,
-  FaWarehouse, FaIndustry, FaUsers, FaHome, FaSignOutAlt,
+  FaWarehouse, FaIndustry, FaUsers, FaHome, FaSignOutAlt,FaBed
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import LogoutModal from '../components/LogoutModal'; // ✅ create this file below
 
 // ✅ Role-wise allowed modules
 const roleAccess = {
-  Admin: ['Dashboard', 'Purchase', 'Sales', 'Inventory', 'Manufacturing', 'Users', 'Vendor','HR'],
-  Procurement: ['Purchase', 'Vendor'],
-  Sales: ['Sales'],
-  Inventory: ['Inventory'],
+  Admin: ['Dashboard','HR','ROOMS', 'Users'],
+  Hr: ['HR'],
+  Sales: ['ROOMS'],
+  Receptionist: ['ROOMS'],
   Manufacturing: ['Manufacturing'],
 };
 
@@ -22,17 +22,6 @@ const sidebarModules = [
     icon: <FaHome />,
     children: [{ name: 'Dashboard', path: '/dashboard' }],
   },
-  // {
-  //   name: 'Purchase',
-  //   icon: <FaShoppingCart />,
-  //   children: [
-  //     { name: 'Supplier Management', path: '/suppliers', tag: 'Master Data' },
-  //     { name: 'Purchase Request', path: '/purchase-request' },
-  //     { name: 'Purchase Order', path: '/purchase-order' },
-  //     { name: 'Goods Receipt', path: '/goods-receipt' },
-  //     { name: 'Supplier Invoice', path: '/supplier-invoice' },
-  //   ],
-  // },
   /* ✅ HR MODULE (new) */
   {
     name: 'HR',
@@ -44,6 +33,17 @@ const sidebarModules = [
       { name: 'Task', path: '/tasks' },
       { name: 'Payroll', path: '/payroll' },
       { name: 'Summary', path: '/hr-summary' },
+    ],
+  },
+  {
+    name: 'ROOMS',
+    icon: <FaBed />,
+    children: [
+      { name: 'Rooms', path: '/room-type' },
+      { name: 'Rooms Management', path: '/room-management' },
+      { name: 'Receptions', path: '/Reception-Rooms-Status' },
+      { name: 'Reservation', path: '/reservations-management' },
+      { name: 'Invoices', path: '/invoices-management' },
     ],
   },
   // {
