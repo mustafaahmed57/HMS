@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import FormBuilder from '../components/FormBuilder';
 import DataTable from '../components/DataTable';
+import InvoiceModal from '../components/InvoiceModal'; // ✅ NEW
 import { toast } from 'react-toastify';
 
 // 🔹 Helper: backend error parse
@@ -26,11 +27,52 @@ async function parseError(e, fallback = 'Error saving invoice ❌') {
   }
 }
 
+// 🔹 Badge for Payment Status (Paid / Unpaid / Partial)
+const PaymentStatusBadge = ({ status }) => {
+  const normalized = (status || '').toLowerCase();
+
+  let bg = '#6b7280'; // default grey
+  let label = status || 'Unknown';
+
+  if (normalized === 'paid') {
+    bg = '#16a34a'; // green
+    label = 'Paid';
+  } else if (normalized === 'unpaid') {
+    bg = '#dc2626'; // red
+    label = 'Unpaid';
+  } else if (normalized === 'partial') {
+    bg = '#f59e0b'; // amber
+    label = 'Partial';
+  }
+
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        padding: '3px 10px',
+        borderRadius: '999px',
+        fontSize: '12px',
+        fontWeight: 600,
+        backgroundColor: bg,
+        color: '#fff',
+        minWidth: '70px',
+        textAlign: 'center',
+      }}
+    >
+      {label}
+    </span>
+  );
+};
+
 function InvoicesManagement() {
   const [reservationOptions, setReservationOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [initialValues, setInitialValues] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ✅ NEW: modal state
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   // 🔁 Load reservation dropdown options (CheckedOut + no invoice)
   const fetchReservationOptions = () => {
@@ -75,7 +117,7 @@ function InvoicesManagement() {
       roomRate: '',
       roomAmount: '',
       extraCharges: 0,
-      discount: 0,
+      discount: '0',     // 🔹 STRING "0" so FormBuilder 0 ko ignore nahi karega
       grandTotal: 0,
       paymentMethod: 'Cash',
       paymentStatus: 'Paid'
@@ -85,7 +127,7 @@ function InvoicesManagement() {
   const paymentMethods = ['Cash', 'Card', 'Online', 'BankTransfer'];
   const paymentStatusOptions = ['Paid'];
 
-  // 🧱 Form fields – exactly tumhari logic ke mutabiq
+  // 🧱 Form fields
   const fields = [
     {
       name: 'reservationId',
@@ -143,10 +185,17 @@ function InvoicesManagement() {
       min: 0
     },
     {
+      // 🔹 Discount as STRING % dropdown
       name: 'discount',
-      label: 'Discount',
-      type: 'number',
-      min: 0
+      label: 'Discount (%)',
+      type: 'select',
+      options: [
+        { label: '0%', value: '0' },
+        { label: '2%', value: '2' },
+        { label: '5%', value: '5' },
+        { label: '6%', value: '6' }
+      ],
+      required: true
     },
     {
       name: 'grandTotal',
@@ -182,6 +231,9 @@ function InvoicesManagement() {
 
   // 🔧 Field change handler (reservation select + recalculation)
   const handleFieldChange = (fieldName, value, setFormValues) => {
+    // console.log('FIELD CHANGE:', fieldName, value);
+
+    // 🔹 Reservation change: load summary
     if (fieldName === 'reservationId') {
       let reservationId = value;
 
@@ -206,7 +258,6 @@ function InvoicesManagement() {
         return;
       }
 
-      // backend se summary fetch karo
       fetch(`http://localhost:5186/api/invoices/reservation-summary/${reservationId}`)
         .then(res => {
           if (!res.ok) throw res;
@@ -215,10 +266,11 @@ function InvoicesManagement() {
         .then(summary => {
           setFormValues(prev => {
             const extra = Number(prev.extraCharges || 0);
-            const disc = Number(prev.discount || 0);
-
+            const discPercent = Number(prev.discount || '0'); // string → number
             const roomAmount = Number(summary.roomAmount || 0);
-            let grand = roomAmount + extra - disc;
+
+            const discountAmount = (roomAmount * discPercent) / 100;
+            let grand = roomAmount + extra - discountAmount;
             if (grand < 0) grand = 0;
 
             return {
@@ -243,16 +295,29 @@ function InvoicesManagement() {
       return;
     }
 
-    // ExtraCharges / Discount change → GrandTotal recalc
+    // 🔹 ExtraCharges / Discount change → GrandTotal recalc
     if (fieldName === 'extraCharges' || fieldName === 'discount') {
       setFormValues(prev => {
-        const updated = { ...prev, [fieldName]: value };
+        let newValue = value;
+
+        // discount agar object form mein aaye {label, value}
+        if (fieldName === 'discount' && value && typeof value === 'object' && 'value' in value) {
+          newValue = value.value;  // yahan '0', '2', '5', '6'
+        }
+
+        // NOTE: yahan STRING hi store kar rahe hain for discount
+        const updated = {
+          ...prev,
+          [fieldName]: fieldName === 'discount' ? String(newValue ?? '0') : Number(newValue ?? 0)
+        };
 
         const roomAmount = Number(updated.roomAmount || 0);
         const extra = Number(updated.extraCharges || 0);
-        const disc = Number(updated.discount || 0);
+        const discPercent = Number(updated.discount || '0'); // '0' bhi chalega
 
-        let grand = roomAmount + extra - disc;
+        const discountAmount = (roomAmount * discPercent) / 100;
+
+        let grand = roomAmount + extra - discountAmount;
         if (grand < 0) grand = 0;
 
         updated.grandTotal = grand;
@@ -272,20 +337,25 @@ function InvoicesManagement() {
     if (!d.paymentStatus) return 'Payment Status is required.';
 
     const extra = Number(d.extraCharges || 0);
-    const disc = Number(d.discount || 0);
+    const discPercent = Number(d.discount || '0');
 
     if (extra < 0) return 'Extra Charges cannot be negative.';
-    if (disc < 0) return 'Discount cannot be negative.';
+    if (discPercent < 0) return 'Discount percentage cannot be negative.';
+    if (discPercent > 100) return 'Discount percentage cannot be more than 100%.';
 
     return null;
   };
 
-  // 🔄 Payload → backend
+  // 🔄 Payload → backend (convert % to real amount)
   const toPayload = (d) => {
+    const roomAmount = Number(d.roomAmount || 0);
+    const discountPercent = Number(d.discount || '0');
+    const discountAmount = (roomAmount * discountPercent) / 100;
+
     return {
       reservationId: Number(d.reservationId),
       extraCharges: Number(d.extraCharges || 0),
-      discount: Number(d.discount || 0),
+      discount: discountAmount, // 🔹 send amount, backend expects decimal
       paymentMethod: d.paymentMethod || 'Cash',
       paymentStatus: d.paymentStatus || 'Unpaid'
     };
@@ -294,7 +364,10 @@ function InvoicesManagement() {
   // 💾 Submit (Create Invoice)
   const handleSubmit = async (data) => {
     const err = validate(data);
-    if (err) { toast.error(err); return; }
+    if (err) {
+      toast.error(err);
+      return;
+    }
 
     const payload = toPayload(data);
 
@@ -321,14 +394,13 @@ function InvoicesManagement() {
         roomRate: '',
         roomAmount: '',
         extraCharges: 0,
-        discount: 0,
+        discount: '0',
         grandTotal: 0,
         paymentMethod: 'Cash',
-        paymentStatus: 'Unpaid'
+        paymentStatus: 'Paid'
       });
 
-      // reload lists
-      fetchReservationOptions(); // kyun ke is reservation ka invoice ban gaya
+      fetchReservationOptions();
       fetchInvoices();
     } catch (e) {
       const message = await parseError(e, 'Error creating invoice ❌');
@@ -338,9 +410,20 @@ function InvoicesManagement() {
     }
   };
 
-  // 📊 Table columns (read-only list of invoices)
+  // ✅ NEW: modal open/close handlers
+  const openInvoiceModal = (invoice) => {
+    setSelectedInvoice(invoice);
+    setIsInvoiceModalOpen(true);
+  };
+
+  const closeInvoiceModal = () => {
+    setIsInvoiceModalOpen(false);
+    setSelectedInvoice(null);
+  };
+
+  // 📊 Table columns (with actions)
   const columns = [
-    'invoiceId',
+    // 'invoiceId',
     'invoiceNumber',
     'reservationId',
     'guestName',
@@ -352,32 +435,55 @@ function InvoicesManagement() {
     'extraCharges',
     'discount',
     'grandTotal',
-    'paymentStatus'
+    'paymentStatus',
+    // 'CreatedAt',
+    'actions' // ✅ NEW
   ];
 
-  const rowsForTable = rows.map((r) => ({
-    ...r,
-    checkInDate: r.checkInDate
-      ? new Date(r.checkInDate).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        })
-      : '—',
-    checkOutDate: r.checkOutDate
-      ? new Date(r.checkOutDate).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        })
-      : '—'
-  }));
+  const rowsForTable = rows.map((r) => {
+    const formatted = {
+      ...r,
+      checkInDate: r.checkInDate
+        ? new Date(r.checkInDate).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          })
+        : '—',
+      checkOutDate: r.checkOutDate
+        ? new Date(r.checkOutDate).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          })
+        : '—'
+    };
+
+    // ✅ paymentStatus badge
+    formatted.paymentStatus = (
+      <PaymentStatusBadge status={r.paymentStatus} />
+    );
+
+    // ✅ per-row "View" button (for modal)
+    formatted.actions = (
+      <button
+        type="button"
+        className="btn btn-sm"
+        onClick={() => openInvoiceModal(r)} // original r with raw values
+      >
+        View
+      </button>
+    );
+
+    return formatted;
+  });
 
   return (
     <div>
       <h2>Invoice Management</h2>
       <p style={{ marginBottom: '10px', fontStyle: 'italic' }}>
-        1) Select a <b>Checked-out reservation</b>, 2) Adjust Extra Charges / Discount, 3) Save invoice.
+        1) Select a <b>Checked-out reservation</b>, 2) Choose Discount %, adjust Extra Charges,
+        3) Save invoice.
       </p>
 
       <FormBuilder
@@ -385,20 +491,92 @@ function InvoicesManagement() {
         onSubmit={handleSubmit}
         initialValues={initialValues}
         onFieldChange={handleFieldChange}
+        isSubmitting={isSubmitting}   // agar supported hai, warna hata dena
       />
 
-      <button
-        type="button"
-        className="btn submit-btn"
-        style={{ marginTop: '15px', marginBottom: '20px' }}
-        onClick={() => handleSubmit(initialValues)}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? 'Saving...' : 'Create Invoice'}
-      </button>
-
-      <h3>Invoices List</h3>
       <DataTable columns={columns} rows={rowsForTable} />
+
+      {/* 🔹 Invoice Preview Modal */}
+      <InvoiceModal
+        isOpen={isInvoiceModalOpen}
+        onClose={closeInvoiceModal}
+        title={selectedInvoice ? `Invoice #${selectedInvoice.invoiceNumber}` : 'Invoice Preview'}
+      >
+        {selectedInvoice && (
+          <div className="invoice-preview">
+            <div style={{ marginBottom: '10px' }}>
+              <h2 style={{ margin: 0 }}>Stay Elite Hotel</h2>
+              <small>Club Road, Karachi, Pakistan, +923332187645</small>
+            </div>
+
+            <hr />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <div>
+                <p><b>Guest:</b> {selectedInvoice.guestName}</p>
+                <p><b>Room:</b> {selectedInvoice.roomNumber || '—'}</p>
+                <p>
+                  <b>Stay:</b>{' '}
+                  {new Date(selectedInvoice.checkInDate).toLocaleDateString('en-GB')} →{' '}
+                  {new Date(selectedInvoice.checkOutDate).toLocaleDateString('en-GB')}
+                </p>
+                <p><b>Nights:</b> {selectedInvoice.nights}</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p><b>Invoice #</b> {selectedInvoice.invoiceNumber}</p>
+                <p>
+                  <b>Date:</b>{' '}
+                  {new Date(selectedInvoice.createdAt || selectedInvoice.checkOutDate)
+                    .toLocaleDateString('en-GB')}
+                </p>
+                <p><b>Payment:</b> {selectedInvoice.paymentStatus}</p>
+                <p><b>Method:</b> {selectedInvoice.paymentMethod}</p>
+              </div>
+            </div>
+
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+              <thead>
+                <tr>
+                  <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left', padding: '6px' }}>Description</th>
+                  <th style={{ borderBottom: '1px solid #ccc', textAlign: 'right', padding: '6px' }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px' }}>
+                    Room Charges ({selectedInvoice.nights} night(s) × {selectedInvoice.roomRate})
+                  </td>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px', textAlign: 'right' }}>
+                    {selectedInvoice.roomAmount.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px' }}>Extra Charges</td>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px', textAlign: 'right' }}>
+                    {selectedInvoice.extraCharges.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px' }}>Discount</td>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px', textAlign: 'right' }}>
+                    -{selectedInvoice.discount.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '6px', textAlign: 'right' }}><b>Total</b></td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>
+                    <b>{selectedInvoice.grandTotal.toFixed(2)}</b>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#555' }}>
+              Thank you for staying with us.
+            </p>
+          </div>
+        )}
+      </InvoiceModal>
     </div>
   );
 }

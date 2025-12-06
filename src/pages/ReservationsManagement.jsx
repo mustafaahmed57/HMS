@@ -36,6 +36,12 @@ function ReservationsManagement() {
   const [editId, setEditId] = useState(null);
   const isEditing = !!editId;
 
+  // ⭐ NEW: manual check-in modal state
+  const [checkInModalOpen, setCheckInModalOpen] = useState(false);
+  const [checkInReservation, setCheckInReservation] = useState(null);
+  const [checkInAvailableRooms, setCheckInAvailableRooms] = useState([]);
+  const [checkInSelectedRoomId, setCheckInSelectedRoomId] = useState('');
+
   // 🔁 Load room types (for dropdown)
   const fetchRoomTypes = () => {
     fetch('http://localhost:5186/api/roomtypes')
@@ -50,7 +56,7 @@ function ReservationsManagement() {
       .catch(() => toast.error('Failed to load room types ❌'));
   };
 
-  // 🔁 Load rooms (for auto room selection in check-in)
+  // 🔁 Load rooms (for room selection in check-in)
   const fetchRooms = () => {
     fetch('http://localhost:5186/api/rooms')
       .then(res => {
@@ -87,8 +93,8 @@ function ReservationsManagement() {
   const statusOptions = [
     'Pending',
     'Confirmed',
-    'CheckedIn',
-    'CheckedOut',
+    // 'CheckedIn',
+    // 'CheckedOut',
     'Cancelled',
     'NoShow'
   ];
@@ -313,8 +319,8 @@ function ReservationsManagement() {
     }
   };
 
-  // ✅ Check-In: auto assign first available room for that RoomType
-  const handleCheckIn = async (index) => {
+  // ⭐ NEW: Open check-in modal (manual room selection)
+  const openCheckInModal = (index) => {
     const r = rows[index];
 
     if (r.status === 'CheckedIn') {
@@ -330,37 +336,61 @@ function ReservationsManagement() {
       return;
     }
 
-    // find first available & active room for this room type
-    const matchingRoom = rooms.find(ro =>
+    // available rooms for this roomType
+    const availableRooms = rooms.filter(ro =>
       ro.roomTypeId === r.roomTypeId &&
       ro.isActive &&
       String(ro.status).toLowerCase() === 'available'
     );
 
-    if (!matchingRoom) {
+    if (!availableRooms || availableRooms.length === 0) {
       toast.error('No available room found for this room type ❌');
       return;
     }
 
-    if (!window.confirm(`Check-in guest to Room ${matchingRoom.roomNumber}?`)) {
+    setCheckInReservation(r);
+    setCheckInAvailableRooms(availableRooms);
+    setCheckInSelectedRoomId('');
+    setCheckInModalOpen(true);
+  };
+
+  const closeCheckInModal = () => {
+    setCheckInModalOpen(false);
+    setCheckInReservation(null);
+    setCheckInAvailableRooms([]);
+    setCheckInSelectedRoomId('');
+  };
+
+  // ⭐ NEW: Confirm check-in with selected room
+  const confirmCheckIn = async () => {
+    if (!checkInReservation) {
+      toast.error('No reservation selected.');
+      return;
+    }
+    if (!checkInSelectedRoomId) {
+      toast.error('Please select a room for check-in.');
       return;
     }
 
     const body = {
-      roomId: matchingRoom.roomId,
-      remarks: 'Checked in via Reservations screen (auto room assign)'
+      roomId: Number(checkInSelectedRoomId),
+      remarks: 'Checked in via Reservations screen (manual room selection)'
     };
 
     try {
-      const res = await fetch(`http://localhost:5186/api/reservations/${r.reservationId}/checkin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+      const res = await fetch(
+        `http://localhost:5186/api/reservations/${checkInReservation.reservationId}/checkin`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        }
+      );
 
       if (!res.ok) throw res;
 
-      toast.success(`Guest checked in. Room: ${matchingRoom.roomNumber} ✅`);
+      toast.success('Guest checked in ✅');
+      closeCheckInModal();
       fetchRows();
       fetchRooms(); // refresh room statuses
     } catch (e) {
@@ -442,7 +472,7 @@ function ReservationsManagement() {
         <button className="btn delete-btn" onClick={() => handleDelete(idx)}>
           Delete
         </button>
-        <button className="btn" onClick={() => handleCheckIn(idx)}>
+        <button className="btn" onClick={() => openCheckInModal(idx)}>
           Check-In
         </button>
         <button className="btn" onClick={() => handleCheckOut(idx)}>
@@ -462,6 +492,51 @@ function ReservationsManagement() {
         onFieldChange={handleFieldChange}
       />
       <DataTable columns={columns} rows={rowsForTable} />
+
+      {/* ⭐ NEW: Check-In Modal for manual room selection */}
+      {checkInModalOpen && (
+        <div className="modal-overlay" onClick={closeCheckInModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                Check-In – Reservation #{checkInReservation?.reservationId}{' '}
+                ({checkInReservation?.guestName})
+              </h3>
+              <button className="modal-close" onClick={closeCheckInModal}>
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p>
+                Room Type: <strong>{checkInReservation?.roomTypeName}</strong>
+              </p>
+              <p>Select room to assign:</p>
+
+              <select
+                value={checkInSelectedRoomId}
+                onChange={(e) => setCheckInSelectedRoomId(e.target.value)}
+              >
+                <option value="">Select Room</option>
+                {checkInAvailableRooms.map((room) => (
+                  <option key={room.roomId} value={room.roomId}>
+                    {room.roomNumber} {/* yahan aur info bhi dikha sakte ho e.g. floor */}
+                  </option>
+                ))}
+              </select>
+
+              <div style={{ marginTop: '16px' }}>
+                <button className="btn" onClick={confirmCheckIn}>
+                  Confirm Check-In
+                </button>
+                <button className="btn" onClick={closeCheckInModal} style={{ marginLeft: '8px' }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

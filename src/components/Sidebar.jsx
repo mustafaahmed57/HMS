@@ -27,6 +27,7 @@ const sidebarModules = [
     name: 'HR',
     icon: <FaUserTie />,
     children: [
+      { name: 'Job Posting', path: '/job-posting' },
       { name: 'Hiring', path: '/hiring' },
       { name: 'Employee', path: '/employees' },
       { name: 'Attendance', path: '/attendance' },
@@ -39,7 +40,7 @@ const sidebarModules = [
     name: 'ROOMS',
     icon: <FaBed />,
     children: [
-      { name: 'Rooms', path: '/room-type' },
+      { name: 'Rooms Type', path: '/room-type' },
       { name: 'Rooms Management', path: '/room-management' },
       { name: 'Receptions', path: '/Reception-Rooms-Status' },
       { name: 'Reservation', path: '/reservations-management' },

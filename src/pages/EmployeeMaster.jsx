@@ -6,14 +6,34 @@ import { useLimitedDateRange } from "../components/useLimitedDateRange";
 
 
 function EmployeeMaster() {
-   const { minDateStr, maxDateStr } = useLimitedDateRange({
-      allowPastDays: 1,     // jitnay din back-date allow
-      allowFutureDays: 0,   // future bilkul nahin
-    });
+  const { minDateStr, maxDateStr } = useLimitedDateRange({
+    allowPastDays: 1,     // jitnay din back-date allow
+    allowFutureDays: 0,   // future bilkul nahin
+  });
+
   const [employees, setEmployees] = useState([]);
   const [initialValues, setInitialValues] = useState({});
   const [editId, setEditId] = useState(null);
   const isEditing = !!editId;
+
+  // 🔹 NEW: history modal state
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyEmployee, setHistoryEmployee] = useState(null);
+  const [historyData, setHistoryData] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
+
+  // 🔹 NEW: common date formatter (for history)
+  const formatDate = (value) => {
+    if (!value) return 'Present';
+    const d = new Date(value);
+    if (isNaN(d)) return 'N/A';
+    return d.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
   // 🔁 Load Employees
   const fetchEmployees = () => {
@@ -41,21 +61,40 @@ function EmployeeMaster() {
     { name: 'email', label: 'Email', type: 'email', required: true, maxLength: 50 },
     { name: 'basicSalary', label: 'Basic Salary', type: 'number', required: true, min: 0 },
 
-    { name: 'department', label: 'Department', type: 'select', options:['Front Office',
-  'Housekeeping',
-  'Food & Beverage (F&B)',
-  'Kitchen / Food Production',
-  'Finance & Accounts',
-  'Human Resources (HR)'] },
-    { name: 'designation', label: 'Designation', type: 'select', options:['General Manager (GM)',
-  'Front Office Manager',
-  'Housekeeping Supervisor',
-  'Restaurant Manager (F&B)',
-  'Executive Chef',
-  'Accounts Officer / Accountant'] },
+    {
+      name: 'department',
+      label: 'Department',
+      type: 'select',
+      options: [
+        'Front Office',
+        'Housekeeping',
+        'Food & Beverage (F&B)',
+        'Kitchen / Food Production',
+        'Finance & Accounts',
+        'Human Resources (HR)',
+      ]
+    },
+    {
+      name: 'designation',
+      label: 'Designation',
+      type: 'select',
+      options: [
+        'General Manager (GM)',
+        'Front Office Manager',
+        'Housekeeping Supervisor',
+        'Restaurant Manager (F&B)',
+        'Executive Chef',
+        'Accounts Officer / Accountant',
+      ]
+    },
 
-    { name: 'joiningDate', label: 'Joining Date', type: 'date', min: minDateStr,   // 🔥 hook se aa raha
-    max: maxDateStr },
+    {
+      name: 'joiningDate',
+      label: 'Joining Date',
+      type: 'date',
+      min: minDateStr,   // 🔥 hook se aa raha
+      max: maxDateStr
+    },
     {
       name: 'status',
       label: 'Status',
@@ -82,7 +121,7 @@ function EmployeeMaster() {
     if (!/^\d{13}$/.test(String(d.cnic || ''))) return 'CNIC must be 13 digits.';
     if (!d.email?.trim()) return 'Email is required.';
     if (d.basicSalary == null || Number(d.basicSalary) < 0) return 'Basic Salary must be 0 or more.';
-    if (!d.status || !['Active','Inactive'].includes(d.status)) return "Status must be 'Active' or 'Inactive'.";
+    if (!d.status || !['Active', 'Inactive'].includes(d.status)) return "Status must be 'Active' or 'Inactive'.";
     return null;
   };
 
@@ -142,7 +181,7 @@ function EmployeeMaster() {
     const e = employees[index];
     // format joiningDate to YYYY-MM-DD for date input
     let j = e.joiningDate ? new Date(e.joiningDate) : null;
-    const fmt = j ? `${j.getFullYear()}-${String(j.getMonth()+1).padStart(2,'0')}-${String(j.getDate()).padStart(2,'0')}` : '';
+    const fmt = j ? `${j.getFullYear()}-${String(j.getMonth() + 1).padStart(2, '0')}-${String(j.getDate()).padStart(2, '0')}` : '';
 
     setInitialValues({
       employeeID: e.employeeID,
@@ -173,6 +212,43 @@ function EmployeeMaster() {
     }
   };
 
+  // 🔹 NEW: View history handler
+  const handleViewHistory = async (index) => {
+    const emp = employees[index];
+    if (!emp) return;
+
+    setHistoryEmployee(emp);
+    setHistoryOpen(true);
+    setHistoryLoading(true);
+    setHistoryError('');
+    setHistoryData([]);
+
+    try {
+      const res = await fetch(`http://localhost:5186/api/employees/${emp.employeeID}/designation-history`);
+      if (!res.ok) throw new Error('Failed to load history');
+      const data = await res.json();
+
+      const sorted = (data || []).sort(
+        (a, b) => new Date(a.effectiveFrom) - new Date(b.effectiveFrom)
+      );
+
+      setHistoryData(sorted);
+    } catch (err) {
+      console.error(err);
+      setHistoryError('Failed to load history ❌');
+      toast.error('Failed to load history ❌');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const closeHistory = () => {
+    setHistoryOpen(false);
+    setHistoryEmployee(null);
+    setHistoryData([]);
+    setHistoryError('');
+  };
+
   // 📊 Table
   const columns = [
     'employeeCode',
@@ -181,8 +257,8 @@ function EmployeeMaster() {
     'cnic',
     'email',
     'basicSalary',
-    'department',
-    'designation',
+    // 'department',
+    // 'designation',
     'joiningDate',
     'status',
     'actions'
@@ -197,6 +273,7 @@ function EmployeeMaster() {
       <div className="action-buttons">
         <button className="btn edit-btn" onClick={() => handleEdit(idx)}>Edit</button>
         <button className="btn delete-btn" onClick={() => handleDelete(idx)}>Delete</button>
+        <button className="btn history-btn" onClick={() => handleViewHistory(idx)}>History</button>
       </div>
     )
   }));
@@ -211,6 +288,59 @@ function EmployeeMaster() {
         onFieldChange={handleFieldChange}
       />
       <DataTable columns={columns} rows={rows} />
+
+      {/* 🔹 NEW: History Modal */}
+      {historyOpen && (
+        <div className="modal-overlay" onClick={closeHistory}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                Designation History –{' '}
+                {historyEmployee?.employeeCode} {historyEmployee?.fullName}
+              </h3>
+              <button className="modal-close" onClick={closeHistory}>
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {historyLoading && <p>Loading history...</p>}
+              {!historyLoading && historyError && (
+                <p className="error-text">{historyError}</p>
+              )}
+
+              {!historyLoading && !historyError && historyData.length === 0 && (
+                <p>No history found.</p>
+              )}
+
+              {!historyLoading && !historyError && historyData.length > 0 && (
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Department</th>
+                      <th>Designation</th>
+                      <th>From</th>
+                      <th>To</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyData.map((h, i) => (
+                      <tr key={h.historyID || i}>
+                        <td>{i + 1}</td>
+                        <td>{h.department}</td>
+                        <td>{h.designation}</td>
+                        <td>{formatDate(h.effectiveFrom)}</td>
+                        <td>{formatDate(h.effectiveTo)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

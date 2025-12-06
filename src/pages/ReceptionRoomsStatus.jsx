@@ -28,12 +28,82 @@ async function parseError(e, fallback = 'Error updating room status ❌') {
   }
 }
 
+// 🔹 Badge for Active / Inactive
+const ActiveBadge = ({ value }) => {
+  const label = value === 'Active' ? 'Active' : 'Inactive';
+  const bg = label === 'Active' ? '#16a34a' : '#9ca3af'; // green / grey
+
+  return (
+    <span
+      className="status-badge active-badge"
+      style={{
+        display: 'inline-block',
+        padding: '2px 10px',
+        borderRadius: '999px',
+        fontSize: '12px',
+        fontWeight: 500,
+        backgroundColor: bg,
+        color: '#fff',
+        minWidth: '70px',
+        textAlign: 'center',
+      }}
+    >
+      {label}
+    </span>
+  );
+};
+
+// 🔹 Badge for Room Status (Available / Occupied / Cleaning / OutOfService / Blocked)
+const StatusBadge = ({ status }) => {
+  let bg = '#6b7280'; // default grey
+  switch (status) {
+    case 'Available':
+      bg = '#16a34a'; // green
+      break;
+    case 'Occupied':
+      bg = '#2563eb'; // blue
+      break;
+    case 'Cleaning':
+      bg = '#f59e0b'; // amber
+      break;
+    case 'OutOfService':
+      bg = '#dc2626'; // red
+      break;
+    case 'Blocked':
+      bg = '#7c3aed'; // purple
+      break;
+    default:
+      bg = '#6b7280';
+      break;
+  }
+
+  // Thoda readable label
+  const label = status === 'OutOfService' ? 'Out of Service' : status;
+
+  return (
+    <span
+      className="status-badge room-status-badge"
+      style={{
+        display: 'inline-block',
+        padding: '2px 10px',
+        borderRadius: '999px',
+        fontSize: '12px',
+        fontWeight: 500,
+        backgroundColor: bg,
+        color: '#fff',
+        minWidth: '90px',
+        textAlign: 'center',
+      }}
+    >
+      {label}
+    </span>
+  );
+};
+
 function ReceptionRoomsStatus() {
   const [rows, setRows] = useState([]);
   const [initialValues, setInitialValues] = useState({});
-//   const [editId, setEditId] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null); // full row store
-//   const isEditing = !!editId;
 
   // 🔁 Load rooms
   const fetchRows = () => {
@@ -122,9 +192,10 @@ function ReceptionRoomsStatus() {
       RoomTypeId: selectedRoom.roomTypeId,
       FloorNo: selectedRoom.floorNo,
       Status: formValues.status || selectedRoom.status,
-      IsActive: (formValues.isActive || (selectedRoom.isActive ? 'Active' : 'Inactive')) === 'Inactive'
-        ? false
-        : true,
+      IsActive:
+        (formValues.isActive || (selectedRoom.isActive ? 'Active' : 'Inactive')) === 'Inactive'
+          ? false
+          : true,
       Notes: selectedRoom.notes || null
     };
   };
@@ -152,7 +223,6 @@ function ReceptionRoomsStatus() {
       toast.success('Room status updated ✅');
 
       setInitialValues({});
-    //   setEditId(null);
       setSelectedRoom(null);
       fetchRows();
     } catch (e) {
@@ -166,7 +236,6 @@ function ReceptionRoomsStatus() {
     const r = rows[index];
 
     setSelectedRoom(r);
-    // setEditId(r.roomId);
 
     setInitialValues({
       roomNumber: r.roomNumber,
@@ -190,7 +259,8 @@ function ReceptionRoomsStatus() {
 
   const rowsForTable = rows.map((r, idx) => ({
     ...r,
-    isActive: r.isActive ? 'Active' : 'Inactive',
+    // status: <StatusBadge status={r.status} />,
+    isActive: <ActiveBadge value={r.isActive ? 'Active' : 'Inactive'} />,
     actions: (
       <div className="action-buttons">
         <button className="btn edit-btn" onClick={() => handleEdit(idx)}>

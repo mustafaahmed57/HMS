@@ -19,6 +19,7 @@ import RoomsManagement from './pages/RoomsManagement.jsx';
 import ReceptionRoomsStatus from './pages/ReceptionRoomsStatus.jsx';
 import ReservationsManagement from './pages/ReservationsManagement.jsx';
 import InvoicesManagement from './pages/InvoicesManagement.jsx';
+import JobPostingManagement from './pages/JobPostingManagement.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -50,8 +51,7 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/reservations-management" element={<ReservationsManagement />} />
               <Route path="/invoices-management" element={<InvoicesManagement />} />
-
-
+              <Route path="/job-posting" element={<JobPostingManagement />} />
             </Route>
           ) : (
             // ✅ Redirect if not logged in

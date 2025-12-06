@@ -37,6 +37,32 @@ const floorRoomMap = {
   F3: ['R301', 'R302', 'R303', 'R304', 'R305', 'R306', 'R307', 'R308', 'R309', 'R310'],
 };
 
+// 🔹 Badge component for Active / Inactive
+const ActiveBadge = ({ value }) => {
+  const label = value === 'Active' ? 'Active' : 'Inactive';
+
+  const bg = label === 'Active' ? '#16a34a' : '#9ca3af'; // green / grey
+
+  return (
+    <span
+      className="status-badge active-badge"
+      style={{
+        display: 'inline-block',
+        padding: '2px 10px',
+        borderRadius: '999px',
+        fontSize: '12px',
+        fontWeight: 500,
+        backgroundColor: bg,
+        color: '#fff',
+        minWidth: '70px',
+        textAlign: 'center',
+      }}
+    >
+      {label}
+    </span>
+  );
+};
+
 function RoomsManagement() {
   const [rows, setRows] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
@@ -141,10 +167,22 @@ function RoomsManagement() {
 
   // 🔧 Field change handler
   const handleFieldChange = (fieldName, value, setFormValues) => {
-    // 🟢 Floor change: room options bhi update karo
+    // 🟢 Floor change: room options update + duplicates block
     if (fieldName === 'floorNo') {
       const floor = value;
-      const roomsForFloor = floorRoomMap[floor] || [];
+
+      let roomsForFloor = floorRoomMap[floor] || [];
+
+      // 🔹 agar edit mode nahi hai to, already created rooms hatao
+      if (!isEditing) {
+        const takenRoomNumbers = rows
+          .filter(r => r.floorNo === floor)
+          .map(r => r.roomNumber);
+
+        roomsForFloor = roomsForFloor.filter(
+          rn => !takenRoomNumbers.includes(rn)
+        );
+      }
 
       setSelectedFloor(floor);
       setRoomOptions(roomsForFloor);
@@ -170,6 +208,7 @@ function RoomsManagement() {
     // 🔵 baaqi fields normal
     setFormValues(prev => ({ ...prev, [fieldName]: value }));
   };
+
 
   // ✅ Front-end validation
   const validate = (d) => {
@@ -280,7 +319,10 @@ function RoomsManagement() {
 
   const rowsForTable = rows.map((r, idx) => ({
     ...r,
-    isActive: r.isActive ? 'Active' : 'Inactive',
+    // yahan text ke bajaye badge JSX
+    isActive: (
+      <ActiveBadge value={r.isActive ? 'Active' : 'Inactive'} />
+    ),
     actions: (
       <div className="action-buttons">
         <button className="btn edit-btn" onClick={() => handleEdit(idx)}>Edit</button>

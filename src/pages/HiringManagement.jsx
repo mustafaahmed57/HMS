@@ -28,15 +28,22 @@ async function parseError(e, fallback = 'Error saving hiring record ❌') {
   }
 }
 
+const API_BASE = 'http://localhost:5186';
+
 function HiringManagement() {
   const [rows, setRows] = useState([]);
   const [initialValues, setInitialValues] = useState({});
   const [editId, setEditId] = useState(null);
+  const [jobOptions, setJobOptions] = useState([]);
+
+  // 👉 FormBuilder ko remount karne ke liye (file reset)
+  const [formKey, setFormKey] = useState(0);
+
   const isEditing = !!editId;
 
   // 🔁 Load Hiring records
   const fetchRows = () => {
-    fetch('http://localhost:5186/api/hiring')
+    fetch(`${API_BASE}/api/hiring`)
       .then(res => {
         if (!res.ok) throw new Error();
         return res.json();
@@ -45,28 +52,30 @@ function HiringManagement() {
       .catch(() => toast.error('Failed to load hiring records ❌'));
   };
 
+  // 🔁 Load Job Postings
+  const fetchJobPostings = () => {
+    fetch(`${API_BASE}/api/jobposting`)
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        const active = data.filter(j => j.status === 'Active');
+        const opts = active.map(j => ({
+          label: `${j.designation} - ${j.department} (${j.numberOfPositions} positions)`,
+          value: j.jobPostingID,
+          department: j.department,
+          designation: j.designation,
+        }));
+        setJobOptions(opts);
+      })
+      .catch(() => toast.error('Failed to load job postings ❌'));
+  };
+
   useEffect(() => {
     fetchRows();
+    fetchJobPostings();
   }, []);
-
-  // 🔹 Dropdown options
-  const departmentOptions = [
-    'Front Office',
-    'Housekeeping',
-    'Food & Beverage (F&B)',
-    'Kitchen / Food Production',
-    'Finance & Accounts',
-    'Human Resources (HR)',
-  ];
-
-  const designationOptions = [
-    'General Manager (GM)',
-    'Front Office Manager',
-    'Housekeeping Supervisor',
-    'Restaurant Manager (F&B)',
-    'Executive Chef',
-    'Accounts Officer / Accountant',
-  ];
 
   const statusOptions = [
     'New',
@@ -79,20 +88,27 @@ function HiringManagement() {
   // 🧱 Form fields (FormBuilder)
   const baseFields = [
     {
+      name: 'jobPostingID',
+      label: 'Job Posting',
+      type: 'select',
+      options: jobOptions,
+      required: true,
+      disabled: isEditing
+    },
+    // ⭐ Dept/Designation => readOnly text fields (no dropdown)
+    {
       name: 'department',
       label: 'Department',
-      type: 'select',
-      options: departmentOptions,
+      type: 'text',
       required: true,
-      disabled: isEditing   // edit pe lock
+      disabled: true
     },
     {
       name: 'designation',
       label: 'Designation',
-      type: 'select',
-      options: designationOptions,
+      type: 'text',
       required: true,
-      disabled: isEditing
+      disabled: true
     },
 
     {
@@ -149,7 +165,7 @@ function HiringManagement() {
       type: 'select',
       options: statusOptions,
       required: true,
-      disabled: false        // 🔥 sirf yeh editable in edit mode
+      disabled: false
     },
 
     {
@@ -158,7 +174,7 @@ function HiringManagement() {
       type: 'textarea',
       required: true,
       minLength: 10,
-      disabled: isEditing    // remarks bhi lock
+      disabled: isEditing
     }
   ];
 
@@ -182,6 +198,28 @@ function HiringManagement() {
       setFormValues(prev => ({ ...prev, cvFile: value || null }));
       return;
     }
+
+    // ⭐ Job Posting select → Department & Designation auto-fill
+    if (fieldName === 'jobPostingID') {
+      setFormValues(prev => {
+        const selected = jobOptions.find(
+          o => String(o.value) === String(value)
+        );
+
+        if (selected) {
+          return {
+            ...prev,
+            jobPostingID: value,
+            department: selected.department,
+            designation: selected.designation,
+          };
+        }
+
+        return { ...prev, jobPostingID: value };
+      });
+      return;
+    }
+
     setFormValues(prev => ({ ...prev, [fieldName]: value }));
   };
 
@@ -194,6 +232,7 @@ function HiringManagement() {
     }
 
     // 🔹 CREATE MODE: full validation
+    if (!d.jobPostingID) return 'Job Posting is required.';
     if (!d.department) return 'Department is required.';
     if (!d.designation) return 'Designation is required.';
     if (!d.candidateName?.trim()) return 'Candidate Name is required.';
@@ -232,6 +271,10 @@ function HiringManagement() {
       fd.append('HiringID', d.hiringID);
     }
 
+    if (d.jobPostingID) {
+      fd.append('JobPostingID', d.jobPostingID);
+    }
+
     fd.append('Department', d.department || '');
     fd.append('Designation', d.designation || '');
     fd.append('CandidateName', d.candidateName || '');
@@ -260,14 +303,14 @@ function HiringManagement() {
     try {
       let res;
       if (isEditing) {
-        res = await fetch(`http://localhost:5186/api/hiring/${data.hiringID}`, {
+        res = await fetch(`${API_BASE}/api/hiring/${data.hiringID}`, {
           method: 'PUT',
           body: formData
         });
         if (!res.ok) throw res;
         toast.info('Hiring record updated ✅');
       } else {
-        res = await fetch('http://localhost:5186/api/hiring', {
+        res = await fetch(`${API_BASE}/api/hiring`, {
           method: 'POST',
           body: formData
         });
@@ -275,9 +318,13 @@ function HiringManagement() {
         toast.success('Hiring record created ✅');
       }
 
+      // ✅ Form + file reset after submit
       setInitialValues({});
       setEditId(null);
+      setFormKey(prev => prev + 1);   // 👈 FormBuilder remount → file clear
+
       fetchRows();
+      fetchJobPostings();
     } catch (e) {
       const message = await parseError(e, 'Error saving hiring record ❌');
       toast.error(message);
@@ -299,6 +346,7 @@ function HiringManagement() {
 
     setInitialValues({
       hiringID: r.hiringID,
+      jobPostingID: r.jobPostingID || '',
       department: r.department,
       designation: r.designation,
       candidateName: r.candidateName,
@@ -309,35 +357,35 @@ function HiringManagement() {
       interviewer: r.interviewer,
       status: r.status,
       remarks: r.remarks,
-      // cvFile: null  // edit pe CV nahi chhedna
     });
     setEditId(r.hiringID);
+    setFormKey(prev => prev + 1);   // edit pe bhi clean mount
   };
 
   // 🗑️ Delete row
   const handleDelete = async (index) => {
     const id = rows[index].hiringID;
     try {
-      const res = await fetch(`http://localhost:5186/api/hiring/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/api/hiring/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       toast.error('Hiring record deleted ❌');
       fetchRows();
+      fetchJobPostings();
     } catch {
       toast.error('Failed to delete ❌');
     }
   };
 
-  // 📊 Table columns
+  // 📊 Table columns — compact, no cv, no jobPostingID, no email
   const columns = [
     'hiringID',
+    'jobTitle',        // short label for job
     'department',
     'designation',
     'candidateName',
     'candidateContact',
-    'candidateEmail',
     'applicationDate',
     'interviewDate',
-    // 'interviewer',
     'status',
     'actions'
   ];
@@ -358,6 +406,7 @@ function HiringManagement() {
           year: 'numeric'
         })
       : '—',
+    jobTitle: r.jobTitle || '—',
     actions: (
       <div className="action-buttons">
         <button className="btn edit-btn" onClick={() => handleEdit(idx)}>Edit</button>
@@ -369,13 +418,19 @@ function HiringManagement() {
   return (
     <div>
       <h2>Hiring Management</h2>
+
       <FormBuilder
+        key={formKey}                // ⭐ file reset ka main trick
         fields={fields}
         onSubmit={handleSubmit}
         initialValues={initialValues}
         onFieldChange={handleFieldChange}
       />
-      <DataTable columns={columns} rows={rowsForTable} />
+
+      {/* 📊 DataTable — fixed width, no horizontal scroll wrapper */}
+      <div style={{ marginTop: '16px' }}>
+        <DataTable columns={columns} rows={rowsForTable} />
+      </div>
     </div>
   );
 }

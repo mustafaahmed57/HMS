@@ -28,6 +28,31 @@ async function parseError(e, fallback = 'Error saving room type ❌') {
   }
 }
 
+// 🔹 Badge component for Active / Inactive
+const ActiveBadge = ({ value }) => {
+  const label = value === 'Active' ? 'Active' : 'Inactive';
+  const bg = label === 'Active' ? '#16a34a' : '#9ca3af'; // green / grey
+
+  return (
+    <span
+      className="status-badge active-badge"
+      style={{
+        display: 'inline-block',
+        padding: '2px 10px',
+        borderRadius: '999px',
+        fontSize: '12px',
+        fontWeight: 500,
+        backgroundColor: bg,
+        color: '#fff',
+        minWidth: '70px',
+        textAlign: 'center',
+      }}
+    >
+      {label}
+    </span>
+  );
+};
+
 function RoomTypesManagement() {
   const [rows, setRows] = useState([]);
   const [initialValues, setInitialValues] = useState({});
@@ -49,34 +74,33 @@ function RoomTypesManagement() {
     fetchRows();
   }, []);
 
-const roomtypes = [
-  "Standard Room (STD)",
-  "Deluxe Room (DLX)",
-  "Super Deluxe Room (SDLX)",
-  "Executive Room (EXE)",
-  "Suite (STE)",
-  "Family Room (FAM)",
-];
+  const roomtypes = [
+    "Standard Room (STD)",
+    "Deluxe Room (DLX)",
+    "Super Deluxe Room (SDLX)",
+    "Executive Room (EXE)",
+    "Suite (STE)",
+    "Family Room (FAM)",
+  ];
 
-const roomTypeCodes = [
-  "STD",
-  "DLX",
-  "SDLX",
-  "EXE",
-  "STE",
-  "FAM",
-];
+  const roomTypeCodes = [
+    "STD",
+    "DLX",
+    "SDLX",
+    "EXE",
+    "STE",
+    "FAM",
+  ];
 
-// 👇 name se code nikalne ke liye map
-const roomTypeCodeMap = {
-  "Standard Room (STD)": "STD",
-  "Deluxe Room (DLX)": "DLX",
-  "Super Deluxe Room (SDLX)": "SDLX",
-  "Executive Room (EXE)": "EXE",
-  "Suite (STE)": "STE",
-  "Family Room (FAM)": "FAM",
-};
-
+  // 👇 name se code nikalne ke liye map
+  const roomTypeCodeMap = {
+    "Standard Room (STD)": "STD",
+    "Deluxe Room (DLX)": "DLX",
+    "Super Deluxe Room (SDLX)": "SDLX",
+    "Executive Room (EXE)": "EXE",
+    "Suite (STE)": "STE",
+    "Family Room (FAM)": "FAM",
+  };
 
   // 🧱 Form fields
   const activeOptions = ['Active', 'Inactive'];
@@ -88,7 +112,7 @@ const roomTypeCodeMap = {
       type: 'select',
       options: roomTypeCodes,
       maxLength: 50,
-      disabled: true   
+      disabled: true
     },
     {
       name: 'name',
@@ -128,24 +152,23 @@ const roomTypeCodeMap = {
   ];
 
   // 🔧 Field change handler
-const handleFieldChange = (fieldName, value, setFormValues) => {
-  // 🟢 Jab Room Type Name change ho
-  if (fieldName === 'name') {
-    const selectedName = value;
-    const autoCode = roomTypeCodeMap[selectedName] || '';
+  const handleFieldChange = (fieldName, value, setFormValues) => {
+    // 🟢 Jab Room Type Name change ho
+    if (fieldName === 'name') {
+      const selectedName = value;
+      const autoCode = roomTypeCodeMap[selectedName] || '';
 
-    setFormValues(prev => ({
-      ...prev,
-      name: selectedName,
-      code: autoCode || prev.code,  // code auto-fill
-    }));
-    return;
-  }
+      setFormValues(prev => ({
+        ...prev,
+        name: selectedName,
+        code: autoCode || prev.code,  // code auto-fill
+      }));
+      return;
+    }
 
-  // Baaki fields normal
-  setFormValues(prev => ({ ...prev, [fieldName]: value }));
-};
-
+    // Baaki fields normal
+    setFormValues(prev => ({ ...prev, [fieldName]: value }));
+  };
 
   // ✅ Front-end validation
   const validate = (d) => {
@@ -253,7 +276,10 @@ const handleFieldChange = (fieldName, value, setFormValues) => {
 
   const rowsForTable = rows.map((r, idx) => ({
     ...r,
-    isActive: r.isActive ? 'Active' : 'Inactive',
+    // yahan badge laga diya
+    isActive: (
+      <ActiveBadge value={r.isActive ? 'Active' : 'Inactive'} />
+    ),
     actions: (
       <div className="action-buttons">
         <button className="btn edit-btn" onClick={() => handleEdit(idx)}>Edit</button>

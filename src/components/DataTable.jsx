@@ -33,29 +33,48 @@ function DataTable({ columns = [], rows = [], columnLabels = {}, resolveDisplayV
   };
 
   const getStatusBadge = (status) => {
-    const colors = {
-      Pending: '#facc15',
-      Approved: '#4ade80',
-      Dispatched: '#38bdf8',
-      Rejected: '#f87171',
-      Active: '#16A34Aff',
-      Inactive: '#9ca3af',
-      Used:'#2563EBff',
-      Cancelled: '#DC2626ff',
+  const colors = {
+  // Existing
+  Pending: '#facc15',
+  Approved: '#4ade80',
+  Dispatched: '#38bdf8',
+  Rejected: '#f87171',
+  Active: '#16A34Aff',
+  Inactive: '#9ca3af',
+  Used: '#2563EBff',
+  Cancelled: '#DC2626ff',
 
+  // Attendance
+  Present: '#22c55e',
+  Absent: '#ef4444',
+  Leave: '#6366f1',
+  HalfDay: '#fb923c',
 
-      // New statuses
-    Present: '#22c55e',        // Green
-    Absent: '#ef4444',         // Red
-    Leave: '#6366f1',          // Indigo/Purple (calm & neutral)
-    HalfDay: '#fb923c',         // Orange (warning/partial)
-       // 🔥 Hiring Statuses (New addition)
-    New: '#0ea5e9',          // Sky Blue → fresh application
-    Shortlisted: '#10b981',  // Emerald → shortlisted candidates
-    Interviewed: '#a855f7',  // Purple → interview completed
-    Selected: '#22c55e',     // Green → final selection
+  // Hiring statuses
+  New: '#0ea5e9',
+  Shortlisted: '#10b981',
+  Interviewed: '#a855f7',
+  Selected: '#22c55e',
 
-    };
+  // ===============================
+  // ✅ RESERVATION STATUSES (NEW)
+  // ===============================
+  Confirmed: '#10b981',     // green-ish → confirmed
+  CheckedIn: '#22c55e',     // green → guest in hotel
+  CheckedOut: '#94a3b8',    // slate → stay completed
+  NoShow: '#fb923c',        // amber → booked but didn't come
+
+  // Pending & Cancelled already exist above
+
+  // ===============================
+  // ✅ ROOM STATUSES (NEW)
+  // ===============================
+  Available: '#16a34a',     // bright green → free
+  Occupied: '#2563eb',      // blue → occupied
+  Cleaning: '#f59e0b',      // amber → cleaning in progress
+  OutOfService: '#dc2626',  // red → not usable
+  Blocked: '#7c3aed',       // purple → blocked intentionally
+};
 
     return (
       <span
