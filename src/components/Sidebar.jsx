@@ -9,12 +9,13 @@ import LogoutModal from '../components/LogoutModal'; // ✅ create this file bel
 
 // ✅ Role-wise allowed modules
 const roleAccess = {
-  Admin: ['Dashboard','HR','ROOMS', 'Users'],
-  Hr: ['HR'],
-  Sales: ['ROOMS'],
-  Receptionist: ['ROOMS'],
-  Manufacturing: ['Manufacturing'],
+  ADMIN: ['Dashboard', 'HR', 'ROOMS', 'Users'],
+  HR: ['HR'],
+  SALES: ['ROOMS'],
+  RECEPTIONIST: ['ROOMS'],
+  EMPLOYEE:['EMPLOYEE']
 };
+
 
 const sidebarModules = [
   {
@@ -45,6 +46,13 @@ const sidebarModules = [
       { name: 'Receptions', path: '/Reception-Rooms-Status' },
       { name: 'Reservation', path: '/reservations-management' },
       { name: 'Invoices', path: '/invoices-management' },
+    ],
+  },
+  {
+    name: 'EMPLOYEE',
+    icon: <FaBed />,
+    children: [
+      { name: 'Employee Task', path: '/employee-task' },
     ],
   },
   // {
@@ -91,7 +99,9 @@ const sidebarModules = [
   {
     name: 'Users',
     icon: <FaUsers />,
-    children: [{ name: 'User Management', path: '/users' }],
+    children: [{ name: 'User Management', path: '/users' },
+      { name: 'Link Employee', path: '/admin-link-employee' }
+    ],
   },
 ];
 

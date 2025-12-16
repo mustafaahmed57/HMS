@@ -20,40 +20,52 @@ function Login({ setIsLoggedIn, setUserRole }) {
     try {
       setError('');
 
-      // ✅ Send login request to backend
+      // ✅ Fetch users from backend
       const response = await axios.get('http://localhost:5186/api/Users');
       const users = response.data;
 
-      // ✅ Check credentials
-      const foundUser = users.find(u => u.email === email && u.password === password);
+      // ✅ Validate credentials
+      const foundUser = users.find(
+        u => u.email === email && u.password === password
+      );
 
-      if (foundUser) {
-        setIsLoggedIn(true);
-        setUserRole(foundUser.role); // ✅ Set user role globally
-        toast.success(`Welcome, ${foundUser.fullName}`);
-
-        // ✅ Save user in localStorage for WelcomePage
-        localStorage.setItem('loggedInUser', JSON.stringify(foundUser));
-
-        // ✅ Redirect based on role
-        switch (foundUser.role.toLowerCase()) {
-          case 'admin':
-            navigate('/dashboard');
-            break;
-            case 'procurement': 
-          case 'inventory':
-          case 'purchase':
-          case 'sales':
-          case 'manufacturing':
-            navigate('/welcome');
-            break;
-          default:
-            navigate('/404');
-            break;
-        }
-      } else {
+      if (!foundUser) {
         toast.error('Invalid credentials ❌');
+        return;
       }
+
+      // ✅ NORMALIZE ROLE (IMPORTANT FIX)
+      const role = foundUser.role?.toUpperCase();
+
+      // ✅ Save login state
+      setIsLoggedIn(true);
+      setUserRole(role);
+
+      // ✅ Save user in localStorage
+      localStorage.setItem(
+        'loggedInUser',
+        JSON.stringify({ ...foundUser, role })
+      );
+
+      toast.success(`Welcome, ${foundUser.fullName} 👋`);
+
+      // ✅ ROLE-BASED REDIRECT (CLEAN & SAFE)
+      switch (role) {
+        case 'ADMIN':
+          navigate('/dashboard');
+          break;
+
+        case 'HR':
+        case 'SALES':
+        case 'RECEPTIONIST':
+        case 'EMPLOYEE':
+          navigate('/welcome');
+          break;
+
+        default:
+          navigate('/404');
+      }
+
     } catch (err) {
       console.error(err);
       toast.error('Login failed. Server error ❌');
@@ -65,6 +77,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
       <div className="container">
         <div className="form-box">
           <h2>Login to HMS</h2>
+
           <form onSubmit={handleSubmit}>
             <input
               type="email"
@@ -73,6 +86,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+
             <input
               type="password"
               placeholder="Password"
@@ -80,9 +94,16 @@ function Login({ setIsLoggedIn, setUserRole }) {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            {error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}
+
+            {error && (
+              <p style={{ color: 'red', fontSize: '14px' }}>
+                {error}
+              </p>
+            )}
+
             <button type="submit">Login</button>
           </form>
+
           <div className="switch-link">
             Don't have an account? <Link to="/signup">Sign up</Link>
           </div>

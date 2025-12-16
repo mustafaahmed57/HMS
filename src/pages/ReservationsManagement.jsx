@@ -35,6 +35,9 @@ function ReservationsManagement() {
   const [initialValues, setInitialValues] = useState({});
   const [editId, setEditId] = useState(null);
   const isEditing = !!editId;
+  // const [selectedRoomTypePrice, setSelectedRoomTypePrice] = useState('');
+  const [selectedMaxOccupancy, setSelectedMaxOccupancy] = useState(null);
+
 
   // ⭐ NEW: manual check-in modal state
   const [checkInModalOpen, setCheckInModalOpen] = useState(false);
@@ -136,6 +139,14 @@ function ReservationsManagement() {
       disabled: editingStatus === 'CheckedIn' || editingStatus === 'CheckedOut'
     },
     {
+  name: 'basePricePerNight',
+  label: 'Price per Night',
+  type: 'number',
+  disabled: true
+},
+
+
+    {
       name: 'checkInDate',
       label: 'Check-In Date',
       type: 'date',
@@ -149,20 +160,21 @@ function ReservationsManagement() {
       required: true,
       disabled: editingStatus === 'CheckedIn' || editingStatus === 'CheckedOut'
     },
-    {
-      name: 'adults',
-      label: 'Adults',
-      type: 'number',
-      required: true,
-      min: 1
-    },
-    {
-      name: 'children',
-      label: 'Children',
-      type: 'number',
-      min: 0
-    },
-
+   {
+  name: 'adults',
+  label: 'Adults',
+  type: 'number',
+  required: true,
+  min: 1,
+  max: selectedMaxOccupancy || undefined
+},
+{
+  name: 'children',
+  label: 'Children',
+  type: 'number',
+  min: 0,
+  max: selectedMaxOccupancy || undefined
+},
     // 🔁 Status & remarks
     {
       name: 'status',
@@ -183,41 +195,56 @@ function ReservationsManagement() {
   // 🔧 Field change handler
   const handleFieldChange = (fieldName, value, setFormValues) => {
     // RoomTypeId select (object / value)
-    if (fieldName === 'roomTypeId') {
-      if (value && typeof value === 'object' && 'value' in value) {
-        setFormValues(prev => ({ ...prev, roomTypeId: value.value }));
-      } else {
-        setFormValues(prev => ({ ...prev, roomTypeId: value }));
-      }
-      return;
-    }
+  if (fieldName === 'roomTypeId') {
+  const selectedId =
+    value && typeof value === 'object' && 'value' in value
+      ? value.value
+      : value;
+
+  const rt = roomTypes.find(r => r.roomTypeId === Number(selectedId));
+
+  setFormValues(prev => ({
+    ...prev,
+    roomTypeId: selectedId,
+    basePricePerNight: rt ? rt.basePricePerNight : ''
+  }));
+
+  setSelectedMaxOccupancy(rt ? rt.maxOccupancy : null);
+  return;
+}
 
     setFormValues(prev => ({ ...prev, [fieldName]: value }));
   };
 
   // ✅ Front-end validation
-  const validate = (d) => {
-    if (!d.guestName?.trim()) return 'Guest Name is required.';
-    if (!d.guestContact?.trim()) return 'Contact is required.';
-    if (!d.roomTypeId) return 'Room Type is required.';
-    if (!d.checkInDate) return 'Check-In Date is required.';
-    if (!d.checkOutDate) return 'Check-Out Date is required.';
-    if (!d.status) return 'Status is required.';
+ const validate = (d) => {
+  if (!d.guestName?.trim()) return 'Guest Name is required.';
+  if (!d.guestContact?.trim()) return 'Contact is required.';
+  if (!d.roomTypeId) return 'Room Type is required.';
+  if (!d.checkInDate) return 'Check-In Date is required.';
+  if (!d.checkOutDate) return 'Check-Out Date is required.';
+  if (!d.status) return 'Status is required.';
 
-    const inDate = new Date(d.checkInDate);
-    const outDate = new Date(d.checkOutDate);
-    if (outDate < inDate) return 'Check-Out cannot be before Check-In.';
+  const inDate = new Date(d.checkInDate);
+  const outDate = new Date(d.checkOutDate);
+  if (outDate < inDate) return 'Check-Out cannot be before Check-In.';
 
-    if (d.adults == null || d.adults === '')
-      return 'Adults is required.';
-    if (Number(d.adults) < 1)
-      return 'At least 1 adult is required.';
+  if (Number(d.adults) < 1)
+    return 'At least 1 adult is required.';
 
-    if (d.children != null && d.children !== '' && Number(d.children) < 0)
-      return 'Children cannot be negative.';
+  if (Number(d.children) < 0)
+    return 'Children cannot be negative.';
 
-    return null;
-  };
+  // 🔴 occupancy check
+  if (selectedMaxOccupancy != null) {
+    const total = Number(d.adults || 0) + Number(d.children || 0);
+    if (total > selectedMaxOccupancy) {
+      return `Total guests cannot exceed max occupancy (${selectedMaxOccupancy}).`;
+    }
+  }
+
+  return null;
+};
 
   // 🔄 Convert form values → JSON payload (PascalCase)
   const toPayload = (d) => {
@@ -294,6 +321,9 @@ function ReservationsManagement() {
       roomTypeId: r.roomTypeId,
       checkInDate: toYMD(r.checkInDate),
       checkOutDate: toYMD(r.checkOutDate),
+      basePricePerNight: roomTypes.find(rt => rt.roomTypeId === r.roomTypeId)
+  ?.basePricePerNight || '',
+
       adults: r.adults,
       children: r.children,
       status: r.status,

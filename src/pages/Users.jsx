@@ -28,12 +28,19 @@ function Users() {
       </span>
     )
   },
-    {
-      name: 'role',
-      label: 'Role',
-      type: 'select',
-      options: ['Admin', 'Hr', 'Sales','Receptionist'],
-    },
+   {
+  name: 'role',
+  label: 'Role',
+  type: 'select',
+  options: [
+    'ADMIN',
+    'HR',
+    'SALES',
+    'RECEPTIONIST',
+    'EMPLOYEE'
+  ],
+},
+
   ];
 
   // ✅ Fetch users from API

@@ -35,11 +35,28 @@ function HiringManagement() {
   const [initialValues, setInitialValues] = useState({});
   const [editId, setEditId] = useState(null);
   const [jobOptions, setJobOptions] = useState([]);
+  const [interviewerOptions, setInterviewerOptions] = useState([]);
+
 
   // 👉 FormBuilder ko remount karne ke liye (file reset)
   const [formKey, setFormKey] = useState(0);
 
   const isEditing = !!editId;
+
+  const fetchUsers = () => {
+  fetch(`${API_BASE}/api/users`)
+    .then(res => res.json())
+    .then(data => {
+      setInterviewerOptions(
+        data.map(u => ({
+          label: u.fullName,
+          value: u.fullName
+        }))
+      );
+    })
+    .catch(() => toast.error('Failed to load users ❌'));
+};
+
 
   // 🔁 Load Hiring records
   const fetchRows = () => {
@@ -75,6 +92,7 @@ function HiringManagement() {
   useEffect(() => {
     fetchRows();
     fetchJobPostings();
+    fetchUsers();
   }, []);
 
   const statusOptions = [
@@ -152,13 +170,13 @@ function HiringManagement() {
       disabled: isEditing
     },
     {
-      name: 'interviewer',
-      label: 'Interviewer',
-      type: 'text',
-      required: true,
-      disabled: isEditing
-    },
-
+  name: 'interviewer',
+  label: 'Interviewer',
+  type: 'select',
+  options: interviewerOptions,
+  required: true,
+  disabled: isEditing
+},
     {
       name: 'status',
       label: 'Status',

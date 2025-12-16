@@ -34,43 +34,73 @@ function TaskManagement() {
     fetchTasks();
   }, []);
 
-  const fields = [
-    // ⚠️ DB/Backend = AssignedTo
-    { name: 'assignedTo', label: 'Employee', type: 'select', options: employees, required: true },
-    // ⚠️ DB/Backend = TaskTitle
-    { name: 'taskTitle', label: 'Task Title', type: 'select', required: true, options:[
-  "Room Cleaning",
-  "Guest Check-in",
-  "Guest Check-out",
-  "Room Service Delivery",
-  "Laundry Collection",
-  "Laundry Delivery",
-  "Bathroom Cleaning",
-  "AC / Maintenance Check",
-  "Inventory Refill",
-  "Handle Guest Requests"
-]
- },
-    
-    {
-      name: 'priority',
-      label: 'Priority',
-      type: 'select',
-      options: ['Low', 'Medium', 'High'],
-      required: true
-    },
-    {
-      // ⚠️ Status is only Pending / Completed in your DB
-      name: 'status',
-      label: 'Status',
-      type: 'select',
-      options: ['Pending', 'Completed'],
-      required: true
-    },
-    { name: 'dueDate', label: 'Due Date', type: 'date', min:minDateStr, max:maxDateStr },
-    { name: 'description', label: 'Description', type: 'textarea', maxLength: 500 },
-    // CreatedAt is server-side; no form field
-  ];
+ const fields = [
+  {
+    name: 'assignedTo',
+    label: 'Employee',
+    type: 'select',
+    options: employees,
+    required: true,
+    disabled: isEditing   // ✅ LOCK
+  },
+  {
+    name: 'taskTitle',
+    label: 'Task Title',
+    type: 'select',
+    required: true,
+    options: [
+      "Room Cleaning",
+      "Guest Check-in",
+      "Guest Check-out",
+      "Room Service Delivery",
+      "Laundry Collection",
+      "Laundry Delivery",
+      "Bathroom Cleaning",
+      "AC / Maintenance Check",
+      "Inventory Refill",
+      "Handle Guest Requests"
+    ],
+    disabled: isEditing   // ✅ LOCK
+  },
+  {
+    name: 'priority',
+    label: 'Priority',
+    type: 'select',
+    options: ['Low', 'Medium', 'High'],
+    required: true,
+    disabled: isEditing   // ✅ LOCK
+  },
+  {
+    name: 'status',
+    label: 'Status',
+    type: 'select',
+    options: ['Pending', 'Completed'],
+    required: true,
+    disabled: false       // ✅ ONLY THIS EDITABLE
+  },
+  {
+    name: 'dueDate',
+    label: 'Due Date',
+    type: 'date',
+    min: minDateStr,
+    max: maxDateStr,
+    disabled: isEditing   // ✅ LOCK
+  },
+  {
+    name: 'dueTime',
+    label: 'Due Time',
+    type: 'time',
+    disabled: isEditing   // ✅ LOCK
+  },
+  {
+    name: 'description',
+    label: 'Description',
+    type: 'textarea',
+    maxLength: 500,
+    disabled: isEditing   // ✅ LOCK
+  }
+];
+
 
   const handleFieldChange = (fieldName, value, setFormValues) => {
     setFormValues(prev => ({ ...prev, [fieldName]: value }));
@@ -89,47 +119,69 @@ function TaskManagement() {
     payload.taskTitle = payload.taskTitle?.trim();
     if (!payload.description) delete payload.description;
     if (!payload.dueDate) delete payload.dueDate;
+    if (!payload.dueTime) delete payload.dueTime;
     return payload;
   };
 
-  const handleSubmit = async (data) => {
-    const payload = toPayload(data);
-    const err = validate(payload);
-    if (err) { toast.error(err); return; }
+ const handleSubmit = async (data) => {
+  const payload = toPayload(data);
+  const err = validate(payload);
+  if (err) {
+    toast.error(err);
+    return;
+  }
 
-    try {
-      let res;
-      if (isEditing) {
-        payload.taskID = initialValues.taskID;
-        res = await fetch(`http://localhost:5186/api/tasks/${initialValues.taskID}`, {
+  try {
+    let res;
+
+    if (isEditing) {
+      payload.taskID = initialValues.taskID;
+
+      res = await fetch(
+        `http://localhost:5186/api/tasks/${initialValues.taskID}`,
+        {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw res;
-        toast.info('Task updated ✅');
-      } else {
-        res = await fetch('http://localhost:5186/api/tasks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw res;
-        toast.success('Task created ✅');
-      }
+        }
+      );
 
-      setInitialValues({});
-      setEditId(null);
-      fetchTasks();
-    } catch (e) {
-      let message = 'Error saving task ❌';
+      if (!res.ok) throw res;
+      toast.info('Task updated ✅');
+
+    } else {
+      res = await fetch('http://localhost:5186/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw res;
+      toast.success('Task created ✅');
+    }
+
+    setInitialValues({});
+    setEditId(null);
+    fetchTasks();
+
+  } catch (e) {
+    let message = 'Error saving task ❌';
+
+    if (e instanceof Response) {
       try {
         const data = await e.json();
-        message = data?.message || data?.errors?.[0] || message;
-      } catch {
-      toast.error(message);}
+        if (data?.message) {
+          message = data.message;   // 👈 5-task limit message yahin ayega
+        }
+      } catch (parseError) {
+        console.error('Failed to parse error response', parseError);
+      }
     }
-  };
+
+    toast.error(message);
+  }
+};
+
 
   const handleEdit = (index) => {
     const r = rows[index];
@@ -149,7 +201,9 @@ function TaskManagement() {
       description: r.description || '',
       priority: r.priority,
       status: r.status,
-      dueDate: toYMD(r.dueDate)
+      dueDate: toYMD(r.dueDate),
+      dueTime: r.dueTime || '',
+
     });
     setEditId(r.taskID);
   };

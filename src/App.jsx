@@ -20,6 +20,10 @@ import ReceptionRoomsStatus from './pages/ReceptionRoomsStatus.jsx';
 import ReservationsManagement from './pages/ReservationsManagement.jsx';
 import InvoicesManagement from './pages/InvoicesManagement.jsx';
 import JobPostingManagement from './pages/JobPostingManagement.jsx';
+import EmployeeTasks from './pages/EmployeeTasks.jsx';
+import WelcomePage from './pages/WelcomePage';
+import AdminLinkEmployee from './pages/AdminLinkEmployee.jsx';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,7 +41,8 @@ function App() {
 
           {/* ✅ Protected Routes */}
           {isLoggedIn ? (
-            <Route path="/" element={<MainLayout userRole={userRole} />}>
+              <Route path="/" element={<MainLayout userRole={userRole} />}>
+               <Route path="welcome" element={<WelcomePage />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeeMaster />} />
               <Route path="/attendance" element={<AttendanceManagement />} />
@@ -52,6 +57,8 @@ function App() {
               <Route path="/reservations-management" element={<ReservationsManagement />} />
               <Route path="/invoices-management" element={<InvoicesManagement />} />
               <Route path="/job-posting" element={<JobPostingManagement />} />
+              <Route path="/employee-task" element={<EmployeeTasks />} />
+              <Route path="/admin-link-employee" element={<AdminLinkEmployee />} />
             </Route>
           ) : (
             // ✅ Redirect if not logged in

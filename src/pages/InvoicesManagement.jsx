@@ -116,7 +116,7 @@ function InvoicesManagement() {
       nights: '',
       roomRate: '',
       roomAmount: '',
-      extraCharges: 0,
+      extraCharges: '',
       discount: '0',     // 🔹 STRING "0" so FormBuilder 0 ko ignore nahi karega
       grandTotal: 0,
       paymentMethod: 'Cash',
@@ -308,7 +308,11 @@ function InvoicesManagement() {
         // NOTE: yahan STRING hi store kar rahe hain for discount
         const updated = {
           ...prev,
-          [fieldName]: fieldName === 'discount' ? String(newValue ?? '0') : Number(newValue ?? 0)
+          // [fieldName]: fieldName === 'discount' ? String(newValue ?? '0') : Number(newValue ?? 0)
+          [fieldName]: fieldName === 'discount'
+  ? String(newValue ?? '0')
+  : String(newValue ?? '')
+
         };
 
         const roomAmount = Number(updated.roomAmount || 0);

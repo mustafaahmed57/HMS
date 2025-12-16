@@ -43,6 +43,8 @@ function DataTable({ columns = [], rows = [], columnLabels = {}, resolveDisplayV
   Inactive: '#9ca3af',
   Used: '#2563EBff',
   Cancelled: '#DC2626ff',
+  Closed: '#f05454ff',
+  Hold: '#f05454ff',
 
   // Attendance
   Present: '#22c55e',
