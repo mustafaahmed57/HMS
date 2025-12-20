@@ -1,7 +1,7 @@
-import React from 'react';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import { Outlet, useLocation } from 'react-router-dom';
+import React from "react";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import { Outlet, useLocation } from "react-router-dom";
 
 function MainLayout({ userRole }) {
   const location = useLocation();
@@ -15,11 +15,12 @@ function MainLayout({ userRole }) {
         <div className="page-content">
           <Outlet key={location.pathname} />
         </div>
-        <footer className="footer">
+        <footer className="footerr">
           copyright ownership with the year © 2025 StayElite HMS
         </footer>
       </div>
     </div>
-  );}
+  );
+}
 
 export default MainLayout;

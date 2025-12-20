@@ -103,7 +103,7 @@ const designationField = isEditing
   options: hiringOptions,
   required: false
 },
-    { name: 'fullName', label: 'Full Name', type: 'text', required: true, maxLength: 20, disabled:true },
+    { name: 'fullName', label: 'Full Name', type: 'text', required: true, maxLength: 30, disabled:true },
     { name: 'contact', label: 'Contact (11 digits)', type: 'text', required: true, maxLength: 11, pattern: '^\\d{11}$', disabled:true },
     { name: 'email', label: 'Email', type: 'email', required: true, maxLength: 50, disabled:true },
     { name: 'cnic', label: 'CNIC (13 digits)', type: 'text', required: true, maxLength: 13, pattern: '^\\d{13}$' },

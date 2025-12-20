@@ -1,59 +1,66 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
-  FaChevronDown, FaChevronUp, FaShoppingCart, FaCashRegister,FaUserTie,
-  FaWarehouse, FaIndustry, FaUsers, FaHome, FaSignOutAlt,FaBed
-} from 'react-icons/fa';
-import { toast } from 'react-toastify';
-import LogoutModal from '../components/LogoutModal'; // ✅ create this file below
+  FaChevronDown,
+  FaChevronUp,
+  FaShoppingCart,
+  FaCashRegister,
+  FaUserTie,
+  FaWarehouse,
+  FaIndustry,
+  FaUsers,
+  FaHome,
+  FaSignOutAlt,
+  FaBed,
+} from "react-icons/fa";
+import { toast } from "react-toastify";
+import LogoutModal from "../components/LogoutModal"; // ✅ create this file below
 
 // ✅ Role-wise allowed modules
 const roleAccess = {
-  ADMIN: ['Dashboard', 'HR', 'ROOMS', 'Users'],
-  HR: ['HR'],
-  SALES: ['ROOMS'],
-  RECEPTIONIST: ['ROOMS'],
-  EMPLOYEE:['EMPLOYEE']
+  ADMIN: ["Dashboard", "HR", "ROOMS", "Users"],
+  HR: ["HR"],
+  SALES: ["ROOMS"],
+  RECEPTIONIST: ["ROOMS"],
+  EMPLOYEE: ["EMPLOYEE"],
 };
-
 
 const sidebarModules = [
   {
-    name: 'Dashboard',
+    name: "Dashboard",
     icon: <FaHome />,
-    children: [{ name: 'Dashboard', path: '/dashboard' }],
+    children: [{ name: "Dashboard", path: "/dashboard" }],
   },
   /* ✅ HR MODULE (new) */
   {
-    name: 'HR',
+    name: "HR",
     icon: <FaUserTie />,
     children: [
-      { name: 'Job Posting', path: '/job-posting' },
-      { name: 'Hiring', path: '/hiring' },
-      { name: 'Employee', path: '/employees' },
-      { name: 'Attendance', path: '/attendance' },
-      { name: 'Task', path: '/tasks' },
-      { name: 'Payroll', path: '/payroll' },
-      { name: 'Summary', path: '/hr-summary' },
+      { name: "Job Posting", path: "/job-posting" },
+      { name: "Hiring", path: "/hiring" },
+      { name: "Employee", path: "/employees" },
+      { name: "Attendance", path: "/attendance" },
+      { name: "Task", path: "/tasks" },
+      { name: "Payroll", path: "/payroll" },
+      { name: "Summary", path: "/hr-summary" },
     ],
   },
   {
-    name: 'ROOMS',
+    name: "ROOMS",
     icon: <FaBed />,
     children: [
-      { name: 'Rooms Type', path: '/room-type' },
-      { name: 'Rooms Management', path: '/room-management' },
-      { name: 'Receptions', path: '/Reception-Rooms-Status' },
-      { name: 'Reservation', path: '/reservations-management' },
-      { name: 'Invoices', path: '/invoices-management' },
+      { name: "Rooms Type", path: "/room-type" },
+      { name: "Rooms Management", path: "/room-management" },
+      { name: "Receptions", path: "/Reception-Rooms-Status" },
+      { name: "Reservation", path: "/reservations-management" },
+      { name: "Invoices", path: "/invoices-management" },
+      { name: "Booking", path: "/booking-management" },
     ],
   },
   {
-    name: 'EMPLOYEE',
+    name: "EMPLOYEE",
     icon: <FaBed />,
-    children: [
-      { name: 'Employee Task', path: '/employee-task' },
-    ],
+    children: [{ name: "Employee Task", path: "/employee-task" }],
   },
   // {
   //   name: 'Sales',
@@ -76,13 +83,13 @@ const sidebarModules = [
   //     { name: 'Inventory Report', path: '/inventory-report' },
   //   ],
   // },
-//   {
-//   name: 'Vendor',
-//   icon: <FaUsers />, // or FaTruck or FaAddressBook if you want a different icon
-//   children: [
-//     { name: 'Suppliers', path: '/suppliers' }
-//   ],
-// },
+  //   {
+  //   name: 'Vendor',
+  //   icon: <FaUsers />, // or FaTruck or FaAddressBook if you want a different icon
+  //   children: [
+  //     { name: 'Suppliers', path: '/suppliers' }
+  //   ],
+  // },
 
   // {
   //   name: 'Manufacturing',
@@ -90,28 +97,29 @@ const sidebarModules = [
   //   children: [
   //     { name: 'Bom', path: '/bom' },
   //     { name: 'Production Plan', path: '/production-plan' },
-  //     { name: 'Production Order', path: '/production-order' }, 
+  //     { name: 'Production Order', path: '/production-order' },
   //     { name: 'Production Completion', path: '/production-completion' }
   //     // { name: 'Manufacturing Order', path: '/manufacturing-Order' },
-      
+
   //   ],
   // },
   {
-    name: 'Users',
+    name: "Users",
     icon: <FaUsers />,
-    children: [{ name: 'User Management', path: '/users' },
-      { name: 'Link Employee', path: '/admin-link-employee' }
+    children: [
+      { name: "User Management", path: "/users" },
+      { name: "Link Employee", path: "/admin-link-employee" },
     ],
   },
 ];
 
 function Sidebar({ userRole }) {
-  const [openModule, setOpenModule] = useState('Dashboard');
+  const [openModule, setOpenModule] = useState("Dashboard");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   const toggleModule = (name) => {
-    setOpenModule((prev) => (prev === name ? '' : name));
+    setOpenModule((prev) => (prev === name ? "" : name));
   };
 
   const allowedModules = sidebarModules.filter((module) =>
@@ -119,9 +127,9 @@ function Sidebar({ userRole }) {
   );
 
   const confirmLogout = () => {
-    localStorage.removeItem('loggedInUser');
-    toast.success('Logout successful 👋');
-    navigate('/login');
+    localStorage.removeItem("loggedInUser");
+    toast.success("Logout successful 👋");
+    navigate("/login");
   };
 
   return (
@@ -136,10 +144,15 @@ function Sidebar({ userRole }) {
               onClick={() => toggleModule(module.name)}
             >
               <span className="icon-text">
-                {module.icon}<span>{module.name}</span>
+                {module.icon}
+                <span>{module.name}</span>
               </span>
               <span className="chevron">
-                {openModule === module.name ? <FaChevronUp /> : <FaChevronDown />}
+                {openModule === module.name ? (
+                  <FaChevronUp />
+                ) : (
+                  <FaChevronDown />
+                )}
               </span>
             </div>
 
@@ -150,7 +163,7 @@ function Sidebar({ userRole }) {
                     <NavLink
                       to={child.path}
                       className={({ isActive }) =>
-                        isActive ? 'child-link active' : 'child-link'
+                        isActive ? "child-link active" : "child-link"
                       }
                     >
                       {child.name}
@@ -165,7 +178,7 @@ function Sidebar({ userRole }) {
 
       <div className="logout-wrapper">
         <button className="logout-btn" onClick={() => setShowLogoutModal(true)}>
-          <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
+          <FaSignOutAlt style={{ marginRight: "8px" }} /> Logout
         </button>
       </div>
 

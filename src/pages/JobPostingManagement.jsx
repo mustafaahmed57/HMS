@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import FormBuilder from '../components/FormBuilder';
-import DataTable from '../components/DataTable';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import FormBuilder from "../components/FormBuilder";
+import DataTable from "../components/DataTable";
+import { toast } from "react-toastify";
 import { useLimitedDateRange } from "../components/useLimitedDateRange";
 
 // 🔹 Dropdown Options
 const departmentOptions = [
-  'Front Office',
-  'Housekeeping',
-  'Food & Beverage (F&B)',
-  'Kitchen / Food Production',
-  'Finance & Accounts',
-  'Human Resources (HR)',
+  "Front Office",
+  "Housekeeping",
+  "Food & Beverage (F&B)",
+  "Kitchen / Food Production",
+  "Finance & Accounts",
+  "Human Resources (HR)",
 ];
 
 const designationOptions = [
-  'General Manager (GM)',
-  'Front Office Manager',
-  'Housekeeping Supervisor',
-  'Restaurant Manager',
-  'Executive Chef',
-  'Accounts Officer',
-  'HR Officer',
+  "General Manager (GM)",
+  "Front Office Manager",
+  "Housekeeping Supervisor",
+  "Restaurant Manager",
+  "Executive Chef",
+  "Accounts Officer",
+  "HR Officer",
 ];
 
 const locationOptions = [
@@ -40,7 +40,7 @@ const locationOptions = [
   // 'Sheikhupura',
 
   // Sindh
-  'Karachi',
+  "Karachi",
   // 'Hyderabad',
   // 'Sukkur',
   // 'Larkana',
@@ -70,11 +70,16 @@ const locationOptions = [
   // 'Skardu',
 ];
 
-
-const experienceOptions = ['6-month', '12-month', '24-month'];
-const educationOptions = ['Matriculation', 'Intermediate', 'Bachelors', 'Masters', 'PhD'];
-const jobTypeOptions = ['Full-Time', 'Part-Time', 'Contract', 'Internship'];
-const statusOptions = ['Active', 'Closed', 'On Hold'];
+const experienceOptions = ["6-month", "12-month", "24-month"];
+const educationOptions = [
+  "Matriculation",
+  "Intermediate",
+  "Bachelors",
+  "Masters",
+  "PhD",
+];
+const jobTypeOptions = ["Full-Time", "Part-Time", "Contract", "Internship"];
+const statusOptions = ["Active", "Closed", "On Hold"];
 
 function JobPostingManagement() {
   const [rows, setRows] = useState([]);
@@ -88,118 +93,199 @@ function JobPostingManagement() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5186/api/jobposting')
-      .then(res => res.json())
+    fetch("http://localhost:5186/api/jobposting")
+      .then((res) => res.json())
       .then(setRows)
-      .catch(() => toast.error('Failed to load job postings'));
+      .catch(() => toast.error("Failed to load job postings"));
   }, []);
 
   // 🔹 FORM FIELDS
   const fields = [
-    { name: 'department', label: 'Department', type: 'select', options: departmentOptions, required: true, disabled: isEditing },
-    { name: 'designation', label: 'Designation', type: 'select', options: designationOptions, required: true, disabled: isEditing },
-    { name: 'numberOfPositions', label: 'Number of Positions', type: 'number', required: true, disabled: isEditing },
-    { name: 'jobDescription', label: 'Job Description', type: 'textarea', required: true, disabled: isEditing },
-    { name: 'requiredSkills', label: 'Required Skills', type: 'textarea', disabled: isEditing },
-    { name: 'experienceRequired', label: 'Experience Required', type: 'select', options: experienceOptions, disabled: isEditing },
-    { name: 'educationRequired', label: 'Education Required', type: 'select', options: educationOptions, disabled: isEditing },
-    { name: 'jobType', label: 'Job Type', type: 'select', options: jobTypeOptions, required: true, disabled: isEditing },
-    { name: 'salaryMin', label: 'Salary Min', type: 'number', disabled: isEditing },
-    { name: 'salaryMax', label: 'Salary Max', type: 'number', disabled: isEditing },
-    { name: 'location', label: 'Location', type: 'select',options:locationOptions, required: true, disabled: isEditing },
-    { name: 'postedDate', label: 'Posted Date', type: 'date', required: true, min: minDateStr, max: maxDateStr, disabled: isEditing },
-    { name: 'closingDate', label: 'Closing Date', type: 'date', required: true, min: minDateStr, max: maxDateStr, disabled: isEditing },
     {
-  name: 'status',
-  label: 'Status',
-  type: 'select',
-  options: statusOptions,
-  required: true,
-  disabled: isEditing && initialValues?.status === 'Closed',
-}
-
+      name: "department",
+      label: "Department",
+      type: "select",
+      options: departmentOptions,
+      required: true,
+      disabled: isEditing,
+    },
+    {
+      name: "designation",
+      label: "Designation",
+      type: "select",
+      options: designationOptions,
+      required: true,
+      disabled: isEditing,
+    },
+    {
+      name: "numberOfPositions",
+      label: "Number of Positions",
+      type: "number",
+      required: true,
+      disabled: isEditing,
+    },
+    {
+      name: "jobDescription",
+      label: "Job Description",
+      type: "textarea",
+      required: true,
+      disabled: isEditing,
+    },
+    {
+      name: "requiredSkills",
+      label: "Required Skills",
+      type: "textarea",
+      disabled: isEditing,
+    },
+    {
+      name: "experienceRequired",
+      label: "Experience Required",
+      type: "select",
+      options: experienceOptions,
+      disabled: isEditing,
+    },
+    {
+      name: "educationRequired",
+      label: "Education Required",
+      type: "select",
+      options: educationOptions,
+      disabled: isEditing,
+    },
+    {
+      name: "jobType",
+      label: "Job Type",
+      type: "select",
+      options: jobTypeOptions,
+      required: true,
+      disabled: isEditing,
+    },
+    {
+      name: "salaryMin",
+      label: "Salary Min",
+      type: "number",
+      disabled: isEditing,
+    },
+    {
+      name: "salaryMax",
+      label: "Salary Max",
+      type: "number",
+      disabled: isEditing,
+    },
+    {
+      name: "location",
+      label: "Location",
+      type: "select",
+      options: locationOptions,
+      required: true,
+      disabled: isEditing,
+    },
+    {
+      name: "postedDate",
+      label: "Posted Date",
+      type: "date",
+      required: true,
+      min: minDateStr,
+      max: maxDateStr,
+      disabled: isEditing,
+    },
+    {
+      name: "closingDate",
+      label: "Closing Date",
+      type: "date",
+      required: true,
+      min: minDateStr,
+      max: maxDateStr,
+      disabled: isEditing,
+    },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: statusOptions,
+      required: true,
+      disabled: isEditing && initialValues?.status === "Closed",
+    },
   ];
 
- const handleSubmit = async (data) => {
-  try {
-    // 🔒 FRONTEND LOCK: Closed jobs cannot be changed
-    if (isEditing && initialValues?.status === 'Closed') {
-      toast.warning('This job is closed and cannot be changed.');
-      return;
-    }
+  const handleSubmit = async (data) => {
+    try {
+      // 🔒 FRONTEND LOCK: Closed jobs cannot be changed
+      if (isEditing && initialValues?.status === "Closed") {
+        toast.warning("This job is closed and cannot be changed.");
+        return;
+      }
 
-    // =========================
-    // ✏️ EDIT MODE (STATUS ONLY)
-    // =========================
-    if (isEditing) {
+      // =========================
+      // ✏️ EDIT MODE (STATUS ONLY)
+      // =========================
+      if (isEditing) {
+        const payload = {
+          Status: data.status,
+        };
+
+        const res = await fetch(
+          `http://localhost:5186/api/jobposting/${data.jobPostingID}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!res.ok) throw new Error();
+
+        toast.info("Status updated ✅");
+
+        // 🔄 Refresh table
+        const refreshed = await fetch("http://localhost:5186/api/jobposting");
+        setRows(await refreshed.json());
+
+        // 🧹 Exit edit mode
+        setEditId(null);
+        setInitialValues({});
+        return;
+      }
+
+      // =========================
+      // ➕ CREATE MODE
+      // =========================
       const payload = {
+        Department: data.department,
+        Designation: data.designation,
+        NumberOfPositions: Number(data.numberOfPositions),
+        JobDescription: data.jobDescription,
+        RequiredSkills: data.requiredSkills,
+        ExperienceRequired: data.experienceRequired,
+        EducationRequired: data.educationRequired,
+        JobType: data.jobType,
+        SalaryMin: data.salaryMin || null,
+        SalaryMax: data.salaryMax || null,
+        Location: data.location,
+        PostedDate: data.postedDate,
+        ClosingDate: data.closingDate,
         Status: data.status,
       };
 
-      const res = await fetch(
-        `http://localhost:5186/api/jobposting/${data.jobPostingID}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch("http://localhost:5186/api/jobposting", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) throw new Error();
 
-      toast.info('Status updated ✅');
+      toast.success("Job created ✅");
 
       // 🔄 Refresh table
-      const refreshed = await fetch('http://localhost:5186/api/jobposting');
+      const refreshed = await fetch("http://localhost:5186/api/jobposting");
       setRows(await refreshed.json());
 
-      // 🧹 Exit edit mode
-      setEditId(null);
+      // 🧹 Reset form
       setInitialValues({});
-      return;
+    } catch {
+      toast.error("Operation failed ❌");
     }
-
-    // =========================
-    // ➕ CREATE MODE
-    // =========================
-    const payload = {
-      Department: data.department,
-      Designation: data.designation,
-      NumberOfPositions: Number(data.numberOfPositions),
-      JobDescription: data.jobDescription,
-      RequiredSkills: data.requiredSkills,
-      ExperienceRequired: data.experienceRequired,
-      EducationRequired: data.educationRequired,
-      JobType: data.jobType,
-      SalaryMin: data.salaryMin || null,
-      SalaryMax: data.salaryMax || null,
-      Location: data.location,
-      PostedDate: data.postedDate,
-      ClosingDate: data.closingDate,
-      Status: data.status,
-    };
-
-    const res = await fetch('http://localhost:5186/api/jobposting', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) throw new Error();
-
-    toast.success('Job created ✅');
-
-    // 🔄 Refresh table
-    const refreshed = await fetch('http://localhost:5186/api/jobposting');
-    setRows(await refreshed.json());
-
-    // 🧹 Reset form
-    setInitialValues({});
-  } catch {
-    toast.error('Operation failed ❌');
-  }
-};
-
+  };
 
   const handleEdit = (index) => {
     const r = rows[index];
@@ -223,27 +309,38 @@ function JobPostingManagement() {
     setEditId(r.jobPostingID);
   };
 
-  const columns = ['jobPostingID', 'department', 'designation', 'jobType', 'location', 'status', 'actions'];
+  const columns = [
+    "jobPostingID",
+    "department",
+    "designation",
+    "jobType",
+    "location",
+    "status",
+    "actions",
+  ];
 
   const rowsForTable = rows.map((r, i) => ({
-  ...r,
-  actions: (
-    <button
-      className="btn edit-btn"
-      disabled={r.status === 'Closed'}
-      onClick={() => handleEdit(i)}
-      title={r.status === 'Closed' ? 'Closed jobs cannot be edited' : 'Edit'}
-    >
-      Edit
-    </button>
-  ),
-}));
-
+    ...r,
+    actions: (
+      <button
+        className="btn edit-btn"
+        disabled={r.status === "Closed"}
+        onClick={() => handleEdit(i)}
+        title={r.status === "Closed" ? "Closed jobs cannot be edited" : "Edit"}
+      >
+        Edit
+      </button>
+    ),
+  }));
 
   return (
     <div>
       <h2>Job Posting Management</h2>
-      <FormBuilder fields={fields} initialValues={initialValues} onSubmit={handleSubmit} />
+      <FormBuilder
+        fields={fields}
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+      />
       <DataTable columns={columns} rows={rowsForTable} />
     </div>
   );

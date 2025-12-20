@@ -1,48 +1,94 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
-import MainLayout from './layouts/MainLayout';
-import NotFound from './pages/NotFound';  
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import TaskManagement from './pages/Task';
-import EmployeeMaster from './pages/EmployeeMaster.jsx';
-import AttendanceManagement from './pages/Attendance';
-import PayrollProcessing from './pages/Payroll';
-import PayrollSummary from './pages/PayrollSummary.jsx';
-import HiringManagement from './pages/HiringManagement.jsx';
-import Users from './pages/Users.jsx';
-import RoomTypesManagement from './pages/RoomTypesManagement.jsx';
-import RoomsManagement from './pages/RoomsManagement.jsx';
-import ReceptionRoomsStatus from './pages/ReceptionRoomsStatus.jsx';
-import ReservationsManagement from './pages/ReservationsManagement.jsx';
-import InvoicesManagement from './pages/InvoicesManagement.jsx';
-import JobPostingManagement from './pages/JobPostingManagement.jsx';
-import EmployeeTasks from './pages/EmployeeTasks.jsx';
-import WelcomePage from './pages/WelcomePage';
-import AdminLinkEmployee from './pages/AdminLinkEmployee.jsx';
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import MainLayout from "./layouts/MainLayout";
+import NotFound from "./pages/NotFound";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import TaskManagement from "./pages/Task";
+import EmployeeMaster from "./pages/EmployeeMaster.jsx";
+import AttendanceManagement from "./pages/Attendance";
+import PayrollProcessing from "./pages/Payroll";
+import PayrollSummary from "./pages/PayrollSummary.jsx";
+import HiringManagement from "./pages/HiringManagement.jsx";
+import Users from "./pages/Users.jsx";
+import RoomTypesManagement from "./pages/RoomTypesManagement.jsx";
+import RoomsManagement from "./pages/RoomsManagement.jsx";
+import ReceptionRoomsStatus from "./pages/ReceptionRoomsStatus.jsx";
+import ReservationsManagement from "./pages/ReservationsManagement.jsx";
+import InvoicesManagement from "./pages/InvoicesManagement.jsx";
+import JobPostingManagement from "./pages/JobPostingManagement.jsx";
+import EmployeeTasks from "./pages/EmployeeTasks.jsx";
+import WelcomePage from "./pages/WelcomePage";
+import AdminLinkEmployee from "./pages/AdminLinkEmployee.jsx";
+import CustomerLanding from "./pages/CustomerLanding.jsx";
+import CustomerSignup from "./pages/CustomerSignup.jsx";
+import CustomerLogin from "./pages/CustomerLogin.jsx";
+import CustomerBooking from "./pages/CustomerBooking.jsx";
+import CustomerDashboard from "./pages/CustomerDashboard.jsx";
+import BookingsStatusManagement from "./pages/BookingsStatusManagement.jsx";
+import Checkout from "./pages/Checkout.jsx";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState(''); // ✅ Stores current user's role
+  const [userRole, setUserRole] = useState(""); // ✅ Stores current user's role
 
   return (
     <>
       <BrowserRouter>
         <Routes>
-
+          <Route path="/Customer-dashboard" element={<CustomerDashboard />} />
           {/* ✅ Public Routes */}
-          <Route path="/" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />} />
+          <Route
+            path="/"
+            element={
+              <Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />
+            }
+          />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />} />
+          <Route
+            path="/login"
+            element={
+              <Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />
+            }
+          />
+          <Route
+            path="/Customer-landing"
+            element={
+              <CustomerLanding
+                setIsLoggedIn={setIsLoggedIn}
+                setUserRole={setUserRole}
+              />
+            }
+          />
+          <Route
+            path="/Customer-signup"
+            element={
+              <CustomerSignup
+                setIsLoggedIn={setIsLoggedIn}
+                setUserRole={setUserRole}
+              />
+            }
+          />
+          <Route
+            path="/Customer-login"
+            element={
+              <CustomerLogin
+                setIsLoggedIn={setIsLoggedIn}
+                setUserRole={setUserRole}
+              />
+            }
+          />
+          <Route path="/booking/:roomTypeId" element={<CustomerBooking />} />
+
+          <Route path="/checkout" element={<Checkout />} />
 
           {/* ✅ Protected Routes */}
           {isLoggedIn ? (
-              <Route path="/" element={<MainLayout userRole={userRole} />}>
-               <Route path="welcome" element={<WelcomePage />} />
+            <Route path="/" element={<MainLayout userRole={userRole} />}>
+              <Route path="welcome" element={<WelcomePage />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeeMaster />} />
               <Route path="/attendance" element={<AttendanceManagement />} />
@@ -51,14 +97,30 @@ function App() {
               <Route path="/hr-summary" element={<PayrollSummary />} />
               <Route path="/room-type" element={<RoomTypesManagement />} />
               <Route path="/room-management" element={<RoomsManagement />} />
-              <Route path="/Reception-Rooms-Status" element={<ReceptionRoomsStatus />} />
+              <Route
+                path="/Reception-Rooms-Status"
+                element={<ReceptionRoomsStatus />}
+              />
               <Route path="/hiring" element={<HiringManagement />} />
               <Route path="/users" element={<Users />} />
-              <Route path="/reservations-management" element={<ReservationsManagement />} />
-              <Route path="/invoices-management" element={<InvoicesManagement />} />
+              <Route
+                path="/reservations-management"
+                element={<ReservationsManagement />}
+              />
+              <Route
+                path="/invoices-management"
+                element={<InvoicesManagement />}
+              />
+              <Route
+                path="/booking-management"
+                element={<BookingsStatusManagement />}
+              />
               <Route path="/job-posting" element={<JobPostingManagement />} />
               <Route path="/employee-task" element={<EmployeeTasks />} />
-              <Route path="/admin-link-employee" element={<AdminLinkEmployee />} />
+              <Route
+                path="/admin-link-employee"
+                element={<AdminLinkEmployee />}
+              />
             </Route>
           ) : (
             // ✅ Redirect if not logged in

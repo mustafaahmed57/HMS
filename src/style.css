@@ -1,7 +1,7 @@
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #F4F4F4;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f4f4;
 }
 
 .wrapper {
@@ -36,15 +36,14 @@ body {
   background-color: #fff;
 }
 
-
 .form-box h2 {
   margin-bottom: 20px;
-  color: #0A2647;
+  color: #0a2647;
   text-align: center;
 }
 
 .form-box input {
-  width: 90%;
+  width: 100%;
   padding: 12px 14px;
   margin-bottom: 16px;
   border: 1px solid #ccc;
@@ -54,7 +53,7 @@ body {
 
 .form-box button {
   width: 100%;
-  background-color: #2C74B3;
+  background-color: #06223b;
   color: #fff;
   border: none;
   padding: 12px;
@@ -65,7 +64,7 @@ body {
 }
 
 .form-box button:hover {
-  background-color: #0A2647;
+  background-color: #1d6dc9;
 }
 
 .switch-link {
@@ -75,7 +74,7 @@ body {
 }
 
 .switch-link a {
-  color: #2C74B3;
+  color: #2c74b3;
   text-decoration: none;
   font-weight: bold;
 }
@@ -87,8 +86,8 @@ body {
 
 /* Sidebar styles */
 .sidebar {
-  width: 250px;
-  background-color: #0A2647;
+  width: 280px;
+  background-color: #0a2647;
   color: white;
   height: 100vh;
   display: flex;
@@ -98,14 +97,14 @@ body {
   box-sizing: border-box;
 
   /* 🔥 ye 2 lines ADD karo */
-  flex-shrink: 0;   
+  flex-shrink: 0;
 }
 
 .logo {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 30px;
-  color: #F1F6F9;
+  color: #f1f6f9;
 }
 
 .modules {
@@ -122,7 +121,7 @@ body {
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  background-color: #0A2647;
+  background-color: #0a2647;
   padding: 10px;
   border-radius: 5px;
   transition: background-color 0.2s ease;
@@ -154,7 +153,7 @@ body {
 
 .child-link {
   text-decoration: none;
-  color: #F1F6F9;
+  color: #f1f6f9;
   display: block;
   padding: 8px;
   border-radius: 4px;
@@ -162,11 +161,11 @@ body {
 }
 
 .child-link:hover {
-  background-color: #2C74B3;
+  background-color: #2c74b3;
 }
 
 .child-link.active {
-  background-color: #2C74B3;
+  background-color: #2c74b3;
   font-weight: bold;
 }
 
@@ -178,7 +177,7 @@ body {
 .logout-btn {
   width: 100%;
   padding: 10px;
-  background-color: #2C74B3;
+  background-color: #2c74b3;
   color: white;
   border: none;
   border-radius: 6px;
@@ -193,10 +192,9 @@ body {
   background-color: #1f4e84;
 }
 
-
 .main-content {
- flex-grow: 1;
-  background-color: #F4F4F4;
+  flex-grow: 1;
+  background-color: #f4f4f4;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -213,7 +211,7 @@ body {
 }
 
 .header-left h2 {
-  color: #0A2647;
+  color: #0a2647;
   margin: 0;
 }
 
@@ -224,7 +222,7 @@ body {
 }
 
 .user-role {
-  background-color: #2C74B3;
+  background-color: #2c74b3;
   color: white;
   padding: 4px 10px;
   border-radius: 20px;
@@ -233,7 +231,7 @@ body {
 
 .user-name {
   font-weight: 500;
-  color: #0A2647;
+  color: #0a2647;
 }
 
 .avatar {
@@ -244,7 +242,7 @@ body {
 
 .logout-btn {
   padding: 6px 12px;
-  background-color: #0A2647;
+  background-color: #0a2647;
   color: white;
   border: none;
   border-radius: 6px;
@@ -264,7 +262,7 @@ body {
 .dashboard h2 {
   margin-bottom: 30px;
   font-size: 24px;
-  color: #0A2647;
+  color: #0a2647;
 }
 
 .card-grid {
@@ -288,13 +286,13 @@ body {
 .dashboard-card h3 {
   margin-bottom: 10px;
   font-size: 18px;
-  color: #2C74B3;
+  color: #2c74b3;
 }
 
 .dashboard-card p {
   font-size: 22px;
   font-weight: bold;
-  color: #0A2647;
+  color: #0a2647;
 }
 
 .charts {
@@ -313,15 +311,11 @@ body {
 
 .chart-box h4 {
   margin-bottom: 20px;
-  color: #0A2647;
+  color: #0a2647;
   font-size: 18px;
 }
 
-
-
-
-
-.footer {
+.footerr {
   text-align: center;
   padding: 12px;
   font-size: 14px;
@@ -330,7 +324,6 @@ body {
   border-top: 1px solid #eee;
 }
 
-
 /* 
 FORM WORK HERE */
 .form-builder {
@@ -338,13 +331,11 @@ FORM WORK HERE */
   padding: 20px 30px;
   margin-bottom: 30px;
   border-radius: 8px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 1510px;      /* 🔥 allows wider layout */
-  margin-left: 0;          /* align left like ERP style */
-  
+  max-width: 1610px; /* 🔥 allows wider layout */
+  margin-left: 0; /* align left like ERP style */
 }
-
 
 .form-group {
   margin-bottom: 18px;
@@ -369,7 +360,7 @@ FORM WORK HERE */
   margin-top: 10px;
   padding: 10px 20px;
   font-size: 15px;
-  background-color: #0A2647;
+  background-color: #0a2647;
   color: white;
   border: none;
   border-radius: 6px;
@@ -388,7 +379,7 @@ FORM WORK HERE */
 }
 
 .form-group select:focus {
-  border-color: #2C74B3;
+  border-color: #2c74b3;
   box-shadow: 0 0 0 2px rgba(44, 116, 179, 0.2);
 }
 .form-group {
@@ -420,7 +411,7 @@ FORM WORK HERE */
 
 /* Variants */
 .form-btn.submit {
-  background-color: #0A2647;
+  background-color: #0a2647;
   color: white;
 }
 
@@ -444,7 +435,7 @@ DATA WORK HERE */
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
   overflow-x: auto;
 }
 
@@ -461,15 +452,14 @@ DATA WORK HERE */
 }
 
 .data-table th {
-  background-color: #F1F6F9;
-  color: #0A2647;
+  background-color: #f1f6f9;
+  color: #0a2647;
   font-weight: 600;
 }
 
 .data-table tr:hover {
   background-color: #f9f9f9;
 }
-
 
 /* Users page buttons css here  */
 .action-buttons {
@@ -488,7 +478,7 @@ DATA WORK HERE */
 
 /* Match ERP Theme */
 .edit-btn {
-  background-color: #2C74B3;
+  background-color: #2c74b3;
   color: white;
 }
 
@@ -504,7 +494,6 @@ DATA WORK HERE */
 .delete-btn:hover {
   background-color: #b52b27;
 }
-
 
 .not-found-container {
   text-align: center;
@@ -557,7 +546,6 @@ DATA WORK HERE */
 .search-input:focus {
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
 }
-
 
 /* Export CSV button */
 .data-table .export-btn {
@@ -635,7 +623,7 @@ DATA WORK HERE */
   color: #2563eb;
 }
 
-.inventory-badge {
+.Hr-badge {
   background-color: #d1fae5;
   color: #065f46;
 }
@@ -672,7 +660,7 @@ DATA WORK HERE */
   background-color: #e0f2fe;
   color: #2563eb;
 }
-.inventory-badge {
+.Hr-badge {
   background-color: #d1fae5;
   color: #065f46;
 }
@@ -695,7 +683,7 @@ DATA WORK HERE */
 .header-datetime {
   font-size: 14px;
   font-weight: 500;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #4b5563; /* Elegant slate/gray */
   padding-right: 10px;
   letter-spacing: 0.3px;
@@ -721,7 +709,7 @@ DATA WORK HERE */
   max-width: 400px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .modal-box h3 {
@@ -778,7 +766,7 @@ DATA WORK HERE */
   max-width: 400px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .modal-box h3 {
@@ -846,7 +834,7 @@ for invoicing modal */
   width: 90%;
   max-width: 800px;
   border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   position: relative;
 }
 
@@ -868,7 +856,6 @@ for invoicing modal */
   max-height: 80vh;
   overflow-y: auto;
 }
-
 
 /* table ka code idhar hay layout wala */
 /* Table Wrapper: Horizontal scroll enable */
@@ -900,7 +887,6 @@ for invoicing modal */
   border: 1px solid #ddd;
 }
 
-
 /* Payroll summary page layout ko normal rakho */
 .payroll-summary-page {
   padding: 1rem;
@@ -913,12 +899,12 @@ for invoicing modal */
 .payroll-summary-table {
   margin-top: 1rem;
   width: 100%;
-  overflow-x: auto;        /* 🔥 table scroll karegi, layout nahi tootega */
+  overflow-x: auto; /* 🔥 table scroll karegi, layout nahi tootega */
 }
 
 /* Table ko thoda min-width do taake columns squeeze na hon */
 .payroll-summary-table table {
-  min-width: 1000px;       /* zaroorat ho to 1100 / 1200 bhi rakh sakte ho */
+  min-width: 1000px; /* zaroorat ho to 1100 / 1200 bhi rakh sakte ho */
 }
 
 /* Optional: thoda header font chhota kar do */
@@ -961,8 +947,6 @@ for invoicing modal */
   margin: 0;
 }
 
-
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -974,7 +958,7 @@ for invoicing modal */
 }
 
 .modal {
-  background: #111827;           /* dark theme feel */
+  background: #111827; /* dark theme feel */
   color: #f9fafb;
   padding: 20px;
   border-radius: 8px;
@@ -1032,8 +1016,8 @@ for invoicing modal */
 }
 /* 🔒 Disabled Edit Button */
 .edit-btn:disabled {
-  background-color: #d1d5db;   /* light grey */
-  color: #6b7280;              /* dark grey text */
+  background-color: #d1d5db; /* light grey */
+  color: #6b7280; /* dark grey text */
   border: 1px solid #d1d5db;
   cursor: not-allowed;
   opacity: 0.7;
