@@ -192,6 +192,28 @@ body {
   padding: 20px;
   color: white;
 }
+.hero-eyebrow {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.hero h1 span {
+  color: var(--accent);
+}
+
+.hero h1 {
+  font-size: 56px;
+  font-weight: 700;
+}
+
+.hero p {
+  font-size: 17px;
+  line-height: 1.6;
+}
 
 /* ================= SECTIONS ================= */
 .section {
@@ -219,46 +241,245 @@ body {
 }
 
 /* ================= ROOMS ================= */
-.room-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
+
+.rooms-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 36px;
 }
 
-.room-card {
-  background: white;
+.rooms-header h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--navy);
+}
+
+.rooms-header .section-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ================= FILTER BAR ================= */
+
+.rooms-filter {
+  max-width: 980px;
+  margin: 0 auto 56px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #ffffff;
+  padding: 20px 22px;
   border-radius: 20px;
-  padding: 22px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 18px 50px rgba(11, 28, 45, 0.12);
+}
+
+.filter-input,
+.filter-select {
+  padding: 13px 16px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  min-width: 220px;
+  background: #f9fafb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-input::placeholder {
+  color: #9ca3af;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.15);
+  background: #ffffff;
+}
+
+/* ================= ROOM GRID ================= */
+
+.room-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, max-content));
+  gap: 36px;
+  justify-content: center; /* 🔥 THIS IS THE KEY */
+}
+
+/* ================= ROOM CARD ================= */
+
+.room-card {
+  background: #ffffff;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(11, 28, 45, 0.08);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+}
+
+.room-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
 .room-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 36px 80px rgba(11, 28, 45, 0.14);
 }
 
+/* ================= ROOM IMAGE ================= */
+
 .room-img {
-  height: 180px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  aspect-ratio: 16 / 10;
+  height: auto; /* remove fixed height */
+}
+
+.room-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.room-card:hover .room-img img {
+  transform: scale(1.07);
+}
+
+/* ================= ROOM BODY ================= */
+
+.room-body {
+  padding: 22px 22px 24px;
+}
+
+.room-body h3 {
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+.room-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.room-meta {
+  font-size: 13px;
+  color: #475569;
   margin-bottom: 18px;
 }
 
-.room-card h3 {
-  font-size: 20px;
-  margin-bottom: 8px;
-}
+/* ================= FOOTER ================= */
 
-.room-card p {
-  font-size: 14px;
-  color: var(--text-muted);
+.room-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .price {
-  display: block;
-  margin: 14px 0;
+  font-size: 19px;
   font-weight: 700;
+  color: var(--navy);
+}
+
+.price small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+/* ================= CTA BUTTON ================= */
+
+.btn-book {
+  padding: 11px 22px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), #2563eb);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 24px rgba(30, 144, 255, 0.3);
+}
+
+.btn-book:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(30, 144, 255, 0.4);
+}
+.rooms-empty {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 60px 20px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(11, 28, 45, 0.08);
+}
+
+.rooms-empty h4 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: var(--navy);
+}
+
+.rooms-empty p {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 420px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.btn-clear {
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none;
+  background: #f1f5f9;
+  color: var(--navy);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-clear:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.search-feedback {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .rooms-filter {
+    padding: 16px;
+  }
+
+  .filter-input,
+  .filter-select {
+    min-width: 100%;
+  }
+
+  .room-row {
+    gap: 28px;
+  }
 }
 
 /* ================= AMENITIES ================= */
@@ -770,4 +991,29 @@ body {
 .policy-grid strong {
   color: var(--navy);
   font-weight: 600;
+}
+
+.career-form {
+  max-width: 520px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.career-form input,
+.career-form select,
+.career-form textarea {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.career-form textarea {
+  resize: none;
+}
+
+.career-form button {
+  margin-top: 10px;
 }

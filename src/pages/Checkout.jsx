@@ -51,20 +51,39 @@ export default function Checkout() {
     setGuest({ ...guest, [e.target.name]: e.target.value });
   };
 
+  const isValidPhone = (phone) => {
+    return /^[0-9]{11}$/.test(phone);
+  };
+
+  const isValidEmail = (email) => {
+    return email.includes("@");
+  };
+
   // ✅ FINAL BOOKING API
   const handleConfirmBooking = async () => {
-    if (!guest.fullName || !guest.email || !guest.phone) {
-      toast.error("Please fill all guest details");
+    // 🧾 Guest form validation
+    if (!guest.fullName.trim()) {
+      toast.error("Guest full name is required");
       return;
     }
 
-    if (!paymentMethod) {
-      toast.error("Please select payment method");
+    if (!guest.email.trim()) {
+      toast.error("Guest email is required");
       return;
     }
 
-    if (!agree) {
-      toast.error("Please accept hotel policies");
+    if (!isValidEmail(guest.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!guest.phone.trim()) {
+      toast.error("Guest contact number is required");
+      return;
+    }
+
+    if (!isValidPhone(guest.phone)) {
+      toast.error("Contact number must be exactly 11 digits");
       return;
     }
 
@@ -138,8 +157,9 @@ export default function Checkout() {
           <div className="card">
             <h3>Guest Information</h3>
             <p className="guest-note">
-              ℹ️ These details are pre-filled from your account. You may edit
-              them if needed.
+              ℹ️ These details are pre-filled from your account. If you are
+              booking for someone else, please enter the guest’s information
+              below.
             </p>
 
             <input
@@ -155,10 +175,19 @@ export default function Checkout() {
               placeholder="Email"
               onChange={handleChange}
             />
-            <input name="phone" placeholder="Phone" onChange={handleChange} />
+
+            {/* <input name="phone" placeholder="Phone" onChange={handleChange} /> */}
+            <input
+              name="phone"
+              value={guest.phone}
+              placeholder="Phone (03XXXXXXXXX)"
+              maxLength={11}
+              onChange={handleChange}
+            />
+
             <textarea
               name="request"
-              value={guest.phone}
+              value={guest.request}
               placeholder="Special requests"
               onChange={handleChange}
             />
@@ -166,32 +195,35 @@ export default function Checkout() {
 
           <div className="checkout-payment">
             <h3 className="checkout-payment-title">Payment Method</h3>
+            <p className="payment-note">
+              💡 Online payments will be enabled soon. Currently, only Pay at
+              Hotel is available.
+            </p>
 
             <label className="checkout-payment-option">
               <input
                 type="radio"
                 name="pay"
-                onChange={() => setPaymentMethod("Card")}
-              />
-              <span>Credit / Debit Card</span>
-            </label>
-
-            <label className="checkout-payment-option">
-              <input
-                type="radio"
-                name="pay"
-                onChange={() => setPaymentMethod("EasyPaisa")}
-              />
-              <span>EasyPaisa / JazzCash</span>
-            </label>
-
-            <label className="checkout-payment-option">
-              <input
-                type="radio"
-                name="pay"
+                checked
                 onChange={() => setPaymentMethod("PayAtHotel")}
               />
               <span>Pay at Hotel</span>
+            </label>
+
+            <label className="checkout-payment-option disabled">
+              <input type="radio" disabled />
+              <span>
+                Credit / Debit Card
+                <small className="coming-soon">Coming Soon</small>
+              </span>
+            </label>
+
+            <label className="checkout-payment-option disabled">
+              <input type="radio" disabled />
+              <span>
+                EasyPaisa / JazzCash
+                <small className="coming-soon">Coming Soon</small>
+              </span>
             </label>
 
             <label className="checkout-payment-policy">
@@ -233,7 +265,14 @@ export default function Checkout() {
             onClick={handleConfirmBooking}
             disabled={loading}
           >
-            {loading ? "Processing..." : "Confirm & Pay"}
+            {loading ? "Processing..." : "Confirm →"}
+          </button>
+          <button
+            className="btn-soliddd"
+            onClick={() => navigate("/customer-landing")}
+            // style={{ marginBottom: "15px" }}
+          >
+            ← Back to Home
           </button>
 
           <div className="checkout-info-box">

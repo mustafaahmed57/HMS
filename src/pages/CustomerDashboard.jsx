@@ -5,15 +5,72 @@ import "../csscode/CustomerDashboard.css";
 export default function CustomerDashboard() {
   const navigate = useNavigate();
 
-  // ✅ customer state (IMPORTANT FIX)
+  /* ================= STATE ================= */
   const [customer, setCustomer] = useState(null);
-
-  // 🔁 demo data (baad mein API se ayega)
   const [bookings, setBookings] = useState([]);
 
+  /* ================= PAGINATION ================= */
+  const ITEMS_PER_PAGE = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  /* ================= STATUS ORDER ================= */
+  const STATUS_PRIORITY = {
+    confirmed: 1,
+    pending: 2,
+    "checked-in": 3,
+    cancelled: 4,
+  };
+
+  /* ================= SORT + PAGINATE ================= */
+  const sortedBookings = [...bookings].sort((a, b) => {
+    const pa = STATUS_PRIORITY[a.status?.toLowerCase()] ?? 99;
+    const pb = STATUS_PRIORITY[b.status?.toLowerCase()] ?? 99;
+    return pa - pb;
+  });
+
+  const totalPages = Math.ceil(sortedBookings.length / ITEMS_PER_PAGE);
+
+  const paginatedBookings = sortedBookings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  /* ================= RESET PAGE ON DATA CHANGE ================= */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [bookings]);
+
+  /* ================= HELPERS ================= */
+  const calculateNights = (checkIn, checkOut) => {
+    const inDate = new Date(checkIn);
+    const outDate = new Date(checkOut);
+    return Math.max(1, Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24)));
+  };
+
+  const API_BASE = "http://localhost:5186";
+
+  const getFirstImage = (imagePaths) => {
+    if (!imagePaths) return "/placeholder-room.jpg";
+
+    let imgPath = imagePaths;
+
+    if (typeof imagePaths === "string" && imagePaths.trim().startsWith("[")) {
+      try {
+        imgPath = JSON.parse(imagePaths)?.[0];
+      } catch {
+        return "/placeholder-room.jpg";
+      }
+    }
+
+    if (!imgPath) return "/placeholder-room.jpg";
+    if (imgPath.startsWith("http")) return imgPath;
+
+    return `${API_BASE}/${imgPath.replace(/^\/+/, "")}`;
+  };
+
+  /* ================= AUTH + DATA ================= */
   useEffect(() => {
     const stored = localStorage.getItem("customer");
-
     if (!stored) {
       navigate("/Customer-login");
       return;
@@ -22,77 +79,22 @@ export default function CustomerDashboard() {
     const parsed = JSON.parse(stored);
     setCustomer(parsed);
 
-    const SESSION_TIMEOUT = 1 * 60 * 1000; // 1 minute
-
-    // 🔥 ACTIVITY TRACKER
-    const updateActivity = () => {
-      const current = localStorage.getItem("customer");
-      if (!current) return;
-
-      const data = JSON.parse(current);
-
-      localStorage.setItem(
-        "customer",
-        JSON.stringify({
-          ...data,
-          lastActivityTime: Date.now(),
-        })
-      );
-    };
-
-    // 👂 Listen to activity
-    window.addEventListener("mousemove", updateActivity);
-    window.addEventListener("keydown", updateActivity);
-    window.addEventListener("click", updateActivity);
-    window.addEventListener("scroll", updateActivity);
-
-    // ⏱ Inactivity checker
-    const timer = setInterval(() => {
-      const current = localStorage.getItem("customer");
-      if (!current) {
-        setCustomer(null);
-        navigate("/Customer-login");
-        return;
-      }
-
-      const data = JSON.parse(current);
-
-      if (Date.now() - data.lastActivityTime > SESSION_TIMEOUT) {
-        localStorage.removeItem("customer");
-        setCustomer(null);
-        navigate("/Customer-login");
-      }
-    }, 1000);
-
-    // 🔥 Fetch bookings (once)
     fetch(`http://localhost:5186/api/bookings/customer/${parsed.customerId}`)
       .then((res) => res.json())
       .then((data) => setBookings(data))
       .catch(() => console.error("Failed to load bookings"));
-
-    // 🧹 CLEANUP
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("mousemove", updateActivity);
-      window.removeEventListener("keydown", updateActivity);
-      window.removeEventListener("click", updateActivity);
-      window.removeEventListener("scroll", updateActivity);
-    };
   }, [navigate]);
 
-  // ⏳ wait until customer loads
-  if (!customer) {
-    return null;
-  }
+  if (!customer) return null;
 
   const handleLogout = () => {
     localStorage.removeItem("customer");
     navigate("/Customer-login");
   };
 
+  /* ================= UI ================= */
   return (
     <div className="dashboard">
-      {/* ================= HEADER ================= */}
       <div className="dashboard-header">
         <div>
           <h2>Welcome, {customer.fullName}</h2>
@@ -108,59 +110,82 @@ export default function CustomerDashboard() {
           >
             Home
           </button>
-
           <button onClick={handleLogout} className="btn-logout">
             Logout
           </button>
         </div>
       </div>
 
-      {/* ================= BOOKINGS ================= */}
       <section className="dash-section">
         <h3>My Bookings</h3>
 
-        {bookings.length === 0 && (
-          <p className="empty-text">No bookings yet.</p>
-        )}
+        {paginatedBookings.map((b) => {
+          const nights = calculateNights(b.checkInDate, b.checkOutDate);
+          const estimatedAmount = b.basePricePerNight * nights;
 
-        {bookings.map((b) => (
-          <div key={b.bookingId} className="booking-card">
-            <div className="booking-row">
-              <strong>{b.roomTypeName}</strong>
-              <span className={`status ${b.status.toLowerCase()}`}>
-                {b.status}
-              </span>
+          return (
+            <div key={b.bookingId} className="booking-card">
+              <div className="booking-top">
+                <img
+                  src={getFirstImage(b.roomImages)}
+                  alt={b.roomTypeName}
+                  className="booking-room-img"
+                />
+
+                <div className="booking-info">
+                  <div className="booking-row">
+                    <strong>{b.roomTypeName}</strong>
+                    <span className={`status ${b.status.toLowerCase()}`}>
+                      {b.status}
+                    </span>
+                  </div>
+
+                  <p>
+                    {new Date(b.checkInDate).toLocaleDateString()} →{" "}
+                    {new Date(b.checkOutDate).toLocaleDateString()}
+                  </p>
+
+                  <p>Guests: {b.guests}</p>
+
+                  <p>
+                    👤 Guest: <strong>{b.guestName}</strong> ({b.guestPhone})
+                  </p>
+
+                  <p className="price-estimate">
+                    💰 Estimated Charges: PKR {estimatedAmount}
+                  </p>
+
+                  <p className="invoice-note">
+                    🧾 Final invoice will be generated by the hotel.
+                  </p>
+                </div>
+              </div>
             </div>
+          );
+        })}
 
-            <p>
-              {new Date(b.checkInDate).toLocaleDateString()} →{" "}
-              {new Date(b.checkOutDate).toLocaleDateString()}
-              {" | "}
-              Guests: {b.guests}
-            </p>
-          </div>
-        ))}
-      </section>
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+            >
+              ← Prev
+            </button>
 
-      {/* ================= INVOICE ================= */}
-      {/* <section className="dash-section">
-        <h3>Invoice</h3>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
 
-        {bookings.length === 0 || bookings[0].status === "Pending" ? (
-          <p className="info-text">
-            Invoice will be generated after booking confirmation.
-          </p>
-        ) : (
-          <div className="invoice-card">
-            <p>Room Price: PKR {bookings[0].price}</p>
-            <p>Nights: {bookings[0].nights}</p>
-            <hr />
-            <p className="total">
-              Total: PKR {bookings[0].price * bookings[0].nights}
-            </p>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+            >
+              Next →
+            </button>
           </div>
         )}
-      </section> */}
+      </section>
     </div>
   );
 }

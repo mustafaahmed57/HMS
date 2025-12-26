@@ -1,3 +1,7 @@
+/* body {
+  overflow: hidden;
+} */
+
 .dashboard {
   padding: 40px 60px;
   background: linear-gradient(180deg, #f8fafc, #eef2f7);
@@ -23,7 +27,7 @@
   margin-bottom: 6px;
   color: #ffffff !important;
   font-weight: 700;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .dashboard-header p {
@@ -31,7 +35,7 @@
   color: #cbd5e1;
   /* color: #ffffff !important; */
   font-weight: 700;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .btn-logout {
@@ -66,11 +70,13 @@
 }
 
 /* ================= BOOKINGS ================= */
+
 .booking-card {
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 18px;
-  margin-bottom: 16px;
+  padding: 15px;
+  margin-bottom: 18px;
+  background: #ffffff;
   transition: all 0.25s ease;
 }
 
@@ -79,6 +85,35 @@
   box-shadow: 0 10px 30px rgba(250, 204, 21, 0.25);
 }
 
+/* Top layout: image + info */
+.booking-top {
+  display: flex;
+  gap: 14px;
+}
+
+/* Room image */
+.booking-room-img {
+  width: 110px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+/* Subtle hover polish */
+.booking-card:hover .booking-room-img {
+  transform: scale(1.03);
+  transition: transform 0.25s ease;
+}
+
+/* Booking info */
+.booking-info {
+  flex: 1;
+}
+
+/* Room name + status row */
 .booking-row {
   display: flex;
   justify-content: space-between;
@@ -88,12 +123,95 @@
 
 .booking-row strong {
   font-size: 15px;
+  font-weight: 700;
   color: #0b1c2d;
 }
 
+/* Paragraphs */
 .booking-card p {
   font-size: 14px;
   color: #475569;
+  margin: 4px 0;
+}
+
+.booking-card p strong {
+  color: #0b1c2d;
+}
+
+/* Estimated price */
+.price-estimate {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Invoice note */
+.invoice-note {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* ================= STATUS ================= */
+
+.status {
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.confirmed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.checked-in {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .booking-top {
+    flex-direction: column;
+  }
+
+  .booking-room-img {
+    width: 100%;
+    height: 180px;
+  }
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ================= STATUS ================= */

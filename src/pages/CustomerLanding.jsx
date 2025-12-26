@@ -9,6 +9,13 @@ export default function CustomerLanding() {
     allowPastDays: 0,
     allowFutureDays: 10,
   });
+  const [searchText, setSearchText] = useState("");
+  const [guestFilter, setGuestFilter] = useState("");
+  const [priceSort, setPriceSort] = useState("");
+
+  const [jobs, setJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+
   const [roomTypes, setRoomTypes] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +24,18 @@ export default function CustomerLanding() {
   const [customer, setCustomer] = useState(
     JSON.parse(localStorage.getItem("customer"))
   );
+
+  const filteredRooms = roomTypes
+    .filter((rt) => rt.name.toLowerCase().includes(searchText.toLowerCase()))
+    .filter((rt) =>
+      guestFilter ? rt.maxOccupancy >= Number(guestFilter) : true
+    )
+    .sort((a, b) => {
+      if (priceSort === "low") return a.basePricePerNight - b.basePricePerNight;
+      if (priceSort === "high")
+        return b.basePricePerNight - a.basePricePerNight;
+      return 0;
+    });
 
   const openBookingModal = (room) => {
     const customer = localStorage.getItem("customer");
@@ -41,6 +60,31 @@ export default function CustomerLanding() {
       .then((res) => res.json())
       .then((data) => setRoomTypes(data))
       .catch((err) => console.error("Failed to load room types", err));
+  }, []);
+
+  useEffect(() => {
+    const loadJobs = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5186/api/jobposting/public-active"
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch jobs");
+        }
+
+        const data = await res.json();
+        setJobs(data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load job openings ❌");
+        setJobs([]);
+      } finally {
+        setJobsLoading(false);
+      }
+    };
+
+    loadJobs();
   }, []);
 
   useEffect(() => {
@@ -115,44 +159,6 @@ export default function CustomerLanding() {
     return () => window.removeEventListener("scroll", revealOnScroll);
   }, []);
 
-  // const handleBookingSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!customer) {
-  //     toast.error("Please login first");
-  //     return;
-  //   }
-
-  //   const form = e.target;
-
-  //   const payload = {
-  //     customerId: customer.customerId,
-  //     roomTypeId: selectedRoom.roomTypeId,
-  //     checkInDate: form.checkIn.value,
-  //     checkOutDate: form.checkOut.value,
-  //     guests: form.guests.value,
-  //   };
-
-  //   try {
-  //     const res = await fetch("http://localhost:5186/api/bookings/create", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(payload),
-  //     });
-
-  //     const data = await res.json();
-
-  //     if (!res.ok) {
-  //       toast.error(data.message || "Booking failed");
-  //       return;
-  //     }
-
-  //     toast.success("Booking placed successfully ✅");
-  //     closeModal();
-  //   } catch {
-  //     toast.error("Server error");
-  //   }
-  // };
   const handleProceedToCheckout = (e) => {
     e.preventDefault();
 
@@ -228,6 +234,9 @@ export default function CustomerLanding() {
           <li>
             <a href="#contact">Contact</a>
           </li>
+          <li>
+            <a href="#careers">Careers</a>
+          </li>
         </ul>
         <div className="nav-buttons">
           {!customer ? (
@@ -281,30 +290,26 @@ export default function CustomerLanding() {
 
         {/* Content */}
         <div className="hero-content">
-          <h1>Where Comfort Meets Class</h1>
+          <span className="hero-eyebrow">DISCOVER PREMIUM STAYS</span>
+
+          <h1>
+            Find Your Perfect <span>Stay</span>
+          </h1>
+
           <p>
-            Welcome to <strong>StayElite</strong> — a premium hotel experience
-            designed for travelers who value comfort, elegance, and peace of
-            mind. Whether you’re visiting for business or leisure, we ensure
-            every stay feels effortless and memorable.
+            Experience elegant rooms, professional service, and effortless
+            booking — designed for comfort-focused travelers.
           </p>
 
           <div className="hero-actions">
-            <button
-              className="btn-solid"
-              onClick={() => {
-                navigate("/Customer-login");
-              }}
-            >
-              Book Your Stay
+            <button className="btn-solid" onClick={() => navigate("#rooms")}>
+              Explore Rooms
             </button>
             <button
               className="btn-outline"
-              onClick={() => {
-                navigate("/Customer-login");
-              }}
+              onClick={() => navigate("/Customer-login")}
             >
-              View Rooms
+              Book Now
             </button>
           </div>
         </div>
@@ -312,18 +317,77 @@ export default function CustomerLanding() {
 
       {/* ROOMS */}
       <section id="rooms" className="section">
-        <h2>Our Rooms</h2>
-        <p className="section-desc">
-          Thoughtfully designed spaces combining modern interiors, premium
-          bedding, and all essential amenities — tailored for your comfort.
-        </p>
+        <div className="rooms-header">
+          <h2>Our Rooms</h2>
+          <p className="section-desc">
+            Thoughtfully designed spaces combining modern interiors, premium
+            bedding, and essential amenities.
+          </p>
+        </div>
+
+        {/* 🔍 SEARCH + FILTER BAR */}
+        <div className="rooms-filter premium-filter">
+          <input
+            type="text"
+            placeholder="Search room type..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="filter-input"
+          />
+
+          <select
+            className="filter-select"
+            value={guestFilter}
+            onChange={(e) => setGuestFilter(e.target.value)}
+          >
+            <option value="">Guests</option>
+            <option value="1">1 Guest</option>
+            <option value="2">2 Guests</option>
+            <option value="3">3+ Guests</option>
+          </select>
+
+          <select
+            className="filter-select"
+            value={priceSort}
+            onChange={(e) => setPriceSort(e.target.value)}
+          >
+            <option value="">Sort by price</option>
+            <option value="low">Low → High</option>
+            <option value="high">High → Low</option>
+          </select>
+        </div>
+        {searchText && (
+          <p className="search-feedback">
+            Showing results for "<strong>{searchText}</strong>"
+          </p>
+        )}
 
         <div className="room-row">
+          {filteredRooms.length === 0 && (
+            <div className="rooms-empty">
+              <h4>No rooms found</h4>
+              <p>
+                We couldn’t find any rooms matching your search. Try adjusting
+                your filters or browse all available rooms.
+              </p>
+
+              <button
+                className="btn-clear"
+                onClick={() => {
+                  setSearchText("");
+                  setGuestFilter("");
+                  setPriceSort("");
+                }}
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+
           {roomTypes.length === 0 && <p>No rooms available at the moment.</p>}
 
-          {roomTypes.map((rt) => (
+          {filteredRooms.map((rt) => (
             <div key={rt.roomTypeId} className="room-card">
-              {/* <div className="room-img" /> */}
               <div className="room-img">
                 <img
                   src={
@@ -335,22 +399,32 @@ export default function CustomerLanding() {
                 />
               </div>
 
-              <h3>{rt.name}</h3>
+              <div className="room-body">
+                <h3>{rt.name}</h3>
 
-              <p>
-                {rt.description ||
-                  "Comfortable room designed for a relaxing stay."}
-              </p>
+                <p className="room-desc">
+                  {rt.description ||
+                    "Comfortable room designed for a relaxing stay."}
+                </p>
 
-              <p>
-                <strong>Guests:</strong> Up to {rt.maxOccupancy}
-              </p>
+                <div className="room-meta">
+                  <span>👤 Up to {rt.maxOccupancy} guests</span>
+                </div>
 
-              <span className="price">PKR {rt.basePricePerNight} / night</span>
+                <div className="room-footer">
+                  <span className="price">
+                    PKR {rt.basePricePerNight}
+                    <small>/night</small>
+                  </span>
 
-              <button className="btn-book" onClick={() => openBookingModal(rt)}>
-                Book Now
-              </button>
+                  <button
+                    className="btn-book"
+                    onClick={() => openBookingModal(rt)}
+                  >
+                    Book Now
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -712,6 +786,95 @@ export default function CustomerLanding() {
             <span>Prime & easily accessible area</span>
           </div>
         </div>
+      </section>
+
+      <section id="careers" className="section light">
+        <h2>Careers at StayElite</h2>
+        <p className="section-desc">
+          Join our professional hospitality team. Apply online in seconds.
+        </p>
+
+        <form
+          className="career-form"
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            const fd = new FormData(e.target);
+
+            try {
+              const res = await fetch(
+                "http://localhost:5186/api/public-hiring/apply",
+                {
+                  method: "POST",
+                  body: fd,
+                }
+              );
+
+              const data = await res.json();
+
+              if (!res.ok) {
+                toast.error(data.message || "Failed to submit application ❌");
+                return;
+              }
+
+              toast.success("Application submitted successfully ✅");
+              e.target.reset();
+            } catch {
+              toast.error("Failed to submit application ❌");
+            }
+          }}
+        >
+          <select name="JobPostingID" required disabled={jobsLoading}>
+            {jobsLoading && <option>Loading jobs...</option>}
+
+            {!jobsLoading && jobs.length === 0 && (
+              <option disabled>No openings available</option>
+            )}
+
+            {!jobsLoading &&
+              jobs.map((job) => (
+                <option key={job.jobPostingID} value={job.jobPostingID}>
+                  {job.designation} – {job.department}
+                  {job.numberOfPositions
+                    ? ` (${job.numberOfPositions} position)`
+                    : ""}
+                </option>
+              ))}
+          </select>
+
+          <input
+            type="text"
+            name="CandidateName"
+            placeholder="Full Name"
+            required
+          />
+
+          <input
+            type="text"
+            name="CandidateContact"
+            placeholder="Contact (11 digits)"
+            maxLength="11"
+            required
+          />
+
+          <input
+            type="email"
+            name="CandidateEmail"
+            placeholder="Email Address"
+            required
+          />
+
+          <textarea name="Remarks" placeholder="Short introduction" rows="3" />
+
+          <input type="file" name="cvFile" accept="application/pdf" required />
+
+          <button
+            className="btn-solid"
+            disabled={jobsLoading || jobs.length === 0}
+          >
+            {jobsLoading || jobs.length === 0 ? "No Openings" : "Apply Now"}
+          </button>
+        </form>
       </section>
 
       {/* FOOTER */}

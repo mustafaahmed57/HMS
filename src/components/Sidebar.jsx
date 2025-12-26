@@ -29,86 +29,62 @@ const sidebarModules = [
   {
     name: "Dashboard",
     icon: <FaHome />,
-    children: [{ name: "Dashboard", path: "/dashboard" }],
+    children: [{ name: "Dashboard", path: "/dashboard", tag: "Report" }],
   },
-  /* ✅ HR MODULE (new) */
+
   {
     name: "HR",
     icon: <FaUserTie />,
     children: [
-      { name: "Job Posting", path: "/job-posting" },
-      { name: "Hiring", path: "/hiring" },
-      { name: "Employee", path: "/employees" },
-      { name: "Attendance", path: "/attendance" },
-      { name: "Task", path: "/tasks" },
-      { name: "Payroll", path: "/payroll" },
-      { name: "Summary", path: "/hr-summary" },
+      { name: "Job Posting", path: "/job-posting", tag: "Master" },
+      { name: "Hiring", path: "/hiring", tag: "Transaction" },
+      { name: "Employee", path: "/employees", tag: "Master" },
+      { name: "Attendance", path: "/attendance", tag: "Transaction" },
+      { name: "Task", path: "/tasks", tag: "Transaction" },
+      { name: "Payroll", path: "/payroll", tag: "Transaction" },
+      { name: "Summary", path: "/hr-summary", tag: "Report" },
     ],
   },
+
   {
     name: "ROOMS",
     icon: <FaBed />,
     children: [
-      { name: "Rooms Type", path: "/room-type" },
-      { name: "Rooms Management", path: "/room-management" },
-      { name: "Receptions", path: "/Reception-Rooms-Status" },
-      { name: "Reservation", path: "/reservations-management" },
-      { name: "Invoices", path: "/invoices-management" },
-      { name: "Booking", path: "/booking-management" },
+      { name: "Rooms Type", path: "/room-type", tag: "Master" },
+      { name: "Rooms Management", path: "/room-management", tag: "Master" },
+      {
+        name: "Receptions",
+        path: "/Reception-Rooms-Status",
+        tag: "Transaction",
+      },
+      {
+        name: "Reservation",
+        path: "/reservations-management",
+        tag: "Transaction",
+      },
+      { name: "Invoices", path: "/invoices-management", tag: "Transaction" },
+      { name: "Booking", path: "/booking-management", tag: "Transaction" },
     ],
   },
+
   {
     name: "EMPLOYEE",
     icon: <FaBed />,
-    children: [{ name: "Employee Task", path: "/employee-task" }],
+    children: [
+      { name: "Employee Task", path: "/employee-task", tag: "Transaction" },
+    ],
   },
-  // {
-  //   name: 'Sales',
-  //   icon: <FaCashRegister />,
-  //   children: [
-  //     { name: 'Customers Management', path: '/customers' }, // ✅ NEW LINE
-  //     { name: 'Sales Inquiry', path: '/sales-inquiry' },
-  //     { name: 'Sales Order', path: '/sales-order' },
-  //     { name: 'Delivery Note', path: '/delivery-note' },
-  //     { name: 'Invoice', path: '/customer-invoice' },
-  //   ],
-  // },
-  // {
-  //   name: 'Inventory',
-  //   icon: <FaWarehouse />,
-  //   children: [
-  //     { name: 'Product Management', path: '/product-management' },
-  //     { name: 'Stock In', path: '/stock-in' },
-  //     { name: 'Stock Out', path: '/stock-out' },
-  //     { name: 'Inventory Report', path: '/inventory-report' },
-  //   ],
-  // },
-  //   {
-  //   name: 'Vendor',
-  //   icon: <FaUsers />, // or FaTruck or FaAddressBook if you want a different icon
-  //   children: [
-  //     { name: 'Suppliers', path: '/suppliers' }
-  //   ],
-  // },
 
-  // {
-  //   name: 'Manufacturing',
-  //   icon: <FaIndustry />,
-  //   children: [
-  //     { name: 'Bom', path: '/bom' },
-  //     { name: 'Production Plan', path: '/production-plan' },
-  //     { name: 'Production Order', path: '/production-order' },
-  //     { name: 'Production Completion', path: '/production-completion' }
-  //     // { name: 'Manufacturing Order', path: '/manufacturing-Order' },
-
-  //   ],
-  // },
   {
     name: "Users",
     icon: <FaUsers />,
     children: [
-      { name: "User Management", path: "/users" },
-      { name: "Link Employee", path: "/admin-link-employee" },
+      { name: "User Management", path: "/users", tag: "Master" },
+      {
+        name: "Link Employee",
+        path: "/admin-link-employee",
+        tag: "Transaction",
+      },
     ],
   },
 ];
@@ -158,18 +134,40 @@ function Sidebar({ userRole }) {
 
             {openModule === module.name && module.children.length > 0 && (
               <ul className="module-children">
-                {module.children.map((child) => (
-                  <li key={child.path}>
-                    <NavLink
-                      to={child.path}
-                      className={({ isActive }) =>
-                        isActive ? "child-link active" : "child-link"
-                      }
-                    >
-                      {child.name}
-                    </NavLink>
-                  </li>
-                ))}
+                {(() => {
+                  const grouped = module.children.reduce((acc, child) => {
+                    if (!acc[child.tag]) acc[child.tag] = [];
+                    acc[child.tag].push(child);
+                    return acc;
+                  }, {});
+
+                  return Object.entries(grouped).map(([tag, items]) => (
+                    <li key={tag} className="tag-group">
+                      {/* 🔖 TAG HEADING (ONE TIME) */}
+                      <span
+                        className={`erp-badge ${tag.toLowerCase()} tag-heading`}
+                      >
+                        {tag}
+                      </span>
+
+                      {/* 🧭 CHILD LINKS */}
+                      <ul className="tag-children">
+                        {items.map((child) => (
+                          <li key={child.path}>
+                            <NavLink
+                              to={child.path}
+                              className={({ isActive }) =>
+                                isActive ? "child-link active" : "child-link"
+                              }
+                            >
+                              {child.name}
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ));
+                })()}
               </ul>
             )}
           </div>

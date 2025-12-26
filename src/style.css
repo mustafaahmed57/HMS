@@ -124,6 +124,7 @@ body {
   background-color: #0a2647;
   padding: 10px;
   border-radius: 5px;
+  width: 100%;
   transition: background-color 0.2s ease;
 }
 
@@ -149,15 +150,20 @@ body {
 
 .module-children li {
   margin: 5px 0;
+  width: 100%;
 }
 
 .child-link {
+  width: 100%;
   text-decoration: none;
   color: #f1f6f9;
-  display: block;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+
+  padding: 10px 14px;
+  border-radius: 6px;
+
+  transition: all 0.2s ease;
 }
 
 .child-link:hover {
@@ -198,6 +204,66 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+.child-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  width: 100%;
+  padding-left: 4px;
+}
+
+.erp-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px; /* true pill */
+  margin-bottom: 6px;
+  margin-left: 10px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  line-height: 1;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
+}
+
+.erp-badge.master {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: #e8f5e9;
+}
+
+.erp-badge.transaction {
+  background: linear-gradient(135deg, #ef6c00, #e65100);
+  color: #fff3e0;
+}
+
+.erp-badge.report {
+  background: linear-gradient(135deg, #0277bd, #01579b);
+  color: #e1f5fe;
+}
+
+.child-item:hover .erp-badge {
+  transform: translateX(2px);
+  filter: brightness(1.08);
+}
+
+.child-link.active + .erp-badge,
+.child-item .child-link.active ~ .erp-badge {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 0 8px rgba(79, 195, 247, 0.45);
+}
+.tag-group {
+  margin-bottom: 14px;
+}
+.tag-heading {
+  margin: 6px 0 8px 10px;
+}
+.tag-children {
+  list-style: none;
+  padding-left: 14px;
 }
 
 /* Header styles */

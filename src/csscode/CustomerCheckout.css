@@ -213,6 +213,54 @@
   margin-bottom: 8px;
 }
 
+.checkout-payment-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.checkout-payment-option:hover {
+  border-color: #1e3a8a;
+}
+
+/* 🚫 Disabled payment option */
+.checkout-payment-option.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.checkout-payment-option.disabled:hover {
+  border-color: #e5e7eb;
+}
+
+/* 🟡 Coming Soon badge */
+.coming-soon {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 999px;
+}
+.payment-note {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 900px) {
   .checkout-grid {

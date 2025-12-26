@@ -5,6 +5,9 @@ import { toast } from "react-toastify";
 import { useLimitedDateRange } from "../components/useLimitedDateRange";
 
 // 🔹 Dropdown Options
+const statusOptionsCreate = ["Active"]; // 🔒 create only
+const statusOptionsEdit = ["Active", "Closed", "On Hold"];
+
 const departmentOptions = [
   "Front Office",
   "Housekeeping",
@@ -79,7 +82,8 @@ const educationOptions = [
   "PhD",
 ];
 const jobTypeOptions = ["Full-Time", "Part-Time", "Contract", "Internship"];
-const statusOptions = ["Active", "Closed", "On Hold"];
+// const statusOptions = ["Active", "Closed", "On Hold"];
+// options: isEditing ? statusOptionsEdit : statusOptionsCreate,
 
 function JobPostingManagement() {
   const [rows, setRows] = useState([]);
@@ -201,13 +205,33 @@ function JobPostingManagement() {
       name: "status",
       label: "Status",
       type: "select",
-      options: statusOptions,
+      // options: statusOptions,
+      options: isEditing ? statusOptionsEdit : statusOptionsCreate,
       required: true,
       disabled: isEditing && initialValues?.status === "Closed",
     },
   ];
 
   const handleSubmit = async (data) => {
+    // 🔹 Salary validation (frontend)
+    const salaryMin = Number(data.salaryMin);
+    const salaryMax = Number(data.salaryMax);
+
+    if (!salaryMin || salaryMin <= 0) {
+      toast.error("Minimum salary must be greater than 0");
+      return;
+    }
+
+    if (!salaryMax || salaryMax <= 0) {
+      toast.error("Maximum salary must be greater than 0");
+      return;
+    }
+
+    if (salaryMax < salaryMin) {
+      toast.error("Maximum salary cannot be less than minimum salary");
+      return;
+    }
+
     try {
       // 🔒 FRONTEND LOCK: Closed jobs cannot be changed
       if (isEditing && initialValues?.status === "Closed") {
@@ -263,7 +287,8 @@ function JobPostingManagement() {
         Location: data.location,
         PostedDate: data.postedDate,
         ClosingDate: data.closingDate,
-        Status: data.status,
+        // Status: data.status,
+        Status: "Active",
       };
 
       const res = await fetch("http://localhost:5186/api/jobposting", {

@@ -1,36 +1,36 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 function Login({ setIsLoggedIn, setUserRole }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError("Please enter both email and password.");
       return;
     }
 
     try {
-      setError('');
+      setError("");
 
       // ✅ Fetch users from backend
-      const response = await axios.get('http://localhost:5186/api/Users');
+      const response = await axios.get("http://localhost:5186/api/Users");
       const users = response.data;
 
       // ✅ Validate credentials
       const foundUser = users.find(
-        u => u.email === email && u.password === password
+        (u) => u.email === email && u.password === password
       );
 
       if (!foundUser) {
-        toast.error('Invalid credentials ❌');
+        toast.error("Invalid credentials ❌");
         return;
       }
 
@@ -43,7 +43,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
 
       // ✅ Save user in localStorage
       localStorage.setItem(
-        'loggedInUser',
+        "loggedInUser",
         JSON.stringify({ ...foundUser, role })
       );
 
@@ -51,24 +51,23 @@ function Login({ setIsLoggedIn, setUserRole }) {
 
       // ✅ ROLE-BASED REDIRECT (CLEAN & SAFE)
       switch (role) {
-        case 'ADMIN':
-          navigate('/dashboard');
+        case "ADMIN":
+          navigate("/dashboard");
           break;
 
-        case 'HR':
-        case 'SALES':
-        case 'RECEPTIONIST':
-        case 'EMPLOYEE':
-          navigate('/welcome');
+        case "HR":
+        case "SALES":
+        case "RECEPTIONIST":
+        case "EMPLOYEE":
+          navigate("/welcome");
           break;
 
         default:
-          navigate('/404');
+          navigate("/404");
       }
-
     } catch (err) {
       console.error(err);
-      toast.error('Login failed. Server error ❌');
+      toast.error("Login failed. Server error ❌");
     }
   };
 
@@ -95,11 +94,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
               required
             />
 
-            {error && (
-              <p style={{ color: 'red', fontSize: '14px' }}>
-                {error}
-              </p>
-            )}
+            {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
 
             <button type="submit">Login</button>
           </form>
