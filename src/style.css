@@ -325,60 +325,76 @@ body {
   padding: 30px;
 } */
 
-.dashboard h2 {
-  margin-bottom: 30px;
-  font-size: 24px;
+.dashboard {
+  padding: 16px;
+}
+
+.dashboard-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 24px;
   color: #0a2647;
 }
+
+.section-title {
+  margin: 32px 0 16px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0a2647;
+}
+
+/* ===== KPI GRID ===== */
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
 }
 
 .dashboard-card {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
-.dashboard-card:hover {
-  transform: translateY(-4px);
+.kpi-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
 }
 
-.dashboard-card h3 {
-  margin-bottom: 10px;
-  font-size: 18px;
-  color: #2c74b3;
+.kpi-label {
+  font-size: 14px;
+  color: #64748b;
 }
 
-.dashboard-card p {
-  font-size: 22px;
-  font-weight: bold;
-  color: #0a2647;
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
 }
+
+/* ===== CHARTS ===== */
 
 .charts {
-  margin-top: 40px;
+  margin-top: 36px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 26px;
 }
 
 .chart-box {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 .chart-box h4 {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
+  font-size: 17px;
+  font-weight: 600;
   color: #0a2647;
-  font-size: 18px;
 }
 
 .footerr {

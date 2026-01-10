@@ -42,7 +42,14 @@ function ReservationsManagement() {
   const isEditing = !!editId;
   // const [selectedRoomTypePrice, setSelectedRoomTypePrice] = useState('');
   const [selectedMaxOccupancy, setSelectedMaxOccupancy] = useState(null);
-
+const isLockedStatus = (status) => {
+    return (
+      status === "Confirmed" ||
+      status === "CheckedIn" ||
+      status === "CheckedOut" ||
+      status === "Cancelled"
+    );
+  };
   // ⭐ NEW: manual check-in modal state
   const [checkInModalOpen, setCheckInModalOpen] = useState(false);
   const [checkInReservation, setCheckInReservation] = useState(null);
@@ -519,16 +526,55 @@ function ReservationsManagement() {
       : "—",
     actions: (
       <div className="action-buttons">
-        <button className="btn edit-btn" onClick={() => handleEdit(idx)}>
+        <button
+          className="btn edit-btn"
+          onClick={() => handleEdit(idx)}
+          disabled={isLockedStatus(r.status)}
+          title={
+            isLockedStatus(r.status)
+              ? "Editing is not allowed for this reservation status"
+              : "Edit reservation"
+          }
+        >
           Edit
         </button>
-        <button className="btn delete-btn" onClick={() => handleDelete(idx)}>
+
+        <button
+          className="btn delete-btn"
+          onClick={() => handleDelete(idx)}
+          disabled={isLockedStatus(r.status)}
+          title={
+            isLockedStatus(r.status)
+              ? "Deletion is not allowed for this reservation status"
+              : "Delete reservation"
+          }
+        >
           Delete
         </button>
-        <button className="btn" onClick={() => openCheckInModal(idx)}>
+
+        <button
+          className="btn"
+          onClick={() => openCheckInModal(idx)}
+          disabled={r.status !== "Confirmed"}
+          title={
+            r.status !== "Confirmed"
+              ? "Only confirmed reservations can be checked in"
+              : "Check-in guest"
+          }
+        >
           Check-In
         </button>
-        <button className="btn" onClick={() => handleCheckOut(idx)}>
+
+        <button
+          className="btn"
+          onClick={() => handleCheckOut(idx)}
+          disabled={r.status !== "CheckedIn"}
+          title={
+            r.status !== "CheckedIn"
+              ? "Only checked-in reservations can be checked out"
+              : "Check-out guest"
+          }
+        >
           Check-Out
         </button>
       </div>

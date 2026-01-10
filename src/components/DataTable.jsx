@@ -36,6 +36,7 @@ function DataTable({ columns = [], rows = [], columnLabels = {}, resolveDisplayV
   const colors = {
   // Existing
   Pending: '#facc15',
+  Completed: '#166534',
   Approved: '#4ade80',
   Dispatched: '#38bdf8',
   Rejected: '#f87171',
